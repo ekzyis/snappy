@@ -5,7 +5,8 @@ import (
 	"fmt"
 )
 
-func HasNewNotes() (bool, error) {
+// Check for new notifications
+func CheckNotifications() (bool, error) {
 	body := GraphQLPayload{
 		Query: `
 			{

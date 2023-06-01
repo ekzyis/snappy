@@ -1,3 +1,4 @@
+// Package for stacker.news API access
 package sn
 
 import (
@@ -13,11 +14,14 @@ import (
 )
 
 var (
-	SnUrl    = "https://stacker.news"
+	// stacker.news URL
+	SnUrl = "https://stacker.news"
+	// stacker.news API URL
 	SnApiUrl = "https://stacker.news/api/graphql"
+	// stacker.news session cookie
+	SnAuthCookie string
 	// TODO add API key support
 	// SnApiKey string
-	SnAuthCookie string
 )
 
 func init() {
@@ -25,13 +29,14 @@ func init() {
 	if err != nil {
 		log.Fatal("error loading .env file")
 	}
-	flag.StringVar(&SnAuthCookie, "SN_AUTH_COOKIE", "", "Cookie required for authorizing requests to stacker.news/api/graphql")
+	flag.StringVar(&SnAuthCookie, "SN_AUTH_COOKIE", "", "Cookie required for authentication requests to stacker.news/api/graphql")
 	flag.Parse()
 	if SnAuthCookie == "" {
 		log.Fatal("SN_AUTH_COOKIE not set")
 	}
 }
 
+// Make GraphQL request using raw payload
 func MakeStackerNewsRequest(body GraphQLPayload) (*http.Response, error) {
 	bodyJSON, err := json.Marshal(body)
 	if err != nil {
@@ -58,6 +63,7 @@ func MakeStackerNewsRequest(body GraphQLPayload) (*http.Response, error) {
 	return resp, nil
 }
 
+// Returns error if any error was found
 func CheckForErrors(graphqlErrors []GraphQLError) error {
 	if len(graphqlErrors) > 0 {
 		errorMsg, marshalErr := json.Marshal(graphqlErrors)
@@ -69,6 +75,7 @@ func CheckForErrors(graphqlErrors []GraphQLError) error {
 	return nil
 }
 
+// Format item id as link
 func FormatLink(id int) string {
 	return fmt.Sprintf("%s/items/%d", SnUrl, id)
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+// Fetch dupes
 func Dupes(url string) (*[]Dupe, error) {
 	body := GraphQLPayload{
 		Query: `

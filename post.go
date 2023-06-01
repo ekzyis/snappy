@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+// Create a new LINK post
 func PostLink(url string, title string, sub string) (int, error) {
 	body := GraphQLPayload{
 		Query: `
@@ -39,6 +40,7 @@ func PostLink(url string, title string, sub string) (int, error) {
 	return itemId, nil
 }
 
+// Create a new comment
 func CreateComment(parentId int, text string) (int, error) {
 	body := GraphQLPayload{
 		Query: `
