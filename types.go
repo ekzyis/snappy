@@ -91,3 +91,32 @@ type DupesError struct {
 func (e *DupesError) Error() string {
 	return fmt.Sprintf("found %d dupes for %s", len(e.Dupes), e.Url)
 }
+
+type RssItem struct {
+	Guid        string    `xml:"guid"`
+	Title       string    `xml:"title"`
+	Link        string    `xml:"link"`
+	Description string    `xml:"description"`
+	PubDate     RssDate   `xml:"pubDate"`
+	Author      RssAuthor `xml:"author"`
+}
+
+type RssChannel struct {
+	Title         string    `xml:"title"`
+	Description   string    `xml:"description"`
+	Link          string    `xml:"link"`
+	Items         []RssItem `xml:"item"`
+	LastBuildDate RssDate   `xml:"lastBuildDate"`
+}
+
+type Rss struct {
+	Channel RssChannel `xml:"channel"`
+}
+
+type RssDate struct {
+	time.Time
+}
+
+type RssAuthor struct {
+	Name string `xml:"name"`
+}
