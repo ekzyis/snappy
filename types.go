@@ -15,6 +15,7 @@ type GraphQLError struct {
 }
 
 type User struct {
+	Id   int    `json:"id,string"`
 	Name string `json:"name"`
 }
 
@@ -34,12 +35,14 @@ type CreateCommentsResponse struct {
 
 type Item struct {
 	Id        int       `json:"id,string"`
+	ParentId  int       `json:"parentId,string"`
 	Title     string    `json:"title"`
 	Url       string    `json:"url"`
 	Sats      int       `json:"sats"`
 	CreatedAt time.Time `json:"createdAt"`
 	Comments  []Comment `json:"comments"`
 	NComments int       `json:"ncomments"`
+	User      User      `json:"user"`
 }
 
 type UpsertLinkResponse struct {
@@ -52,11 +55,13 @@ type UpsertLinkResponse struct {
 type ItemsResponse struct {
 	Errors []GraphQLError `json:"errors"`
 	Data   struct {
-		Items struct {
-			Items  []Item `json:"items"`
-			Cursor string `json:"cursor"`
-		} `json:"items"`
+		Items ItemsCursor `json:"items"`
 	} `json:"data"`
+}
+
+type ItemsCursor struct {
+	Items  []Item `json:"items"`
+	Cursor string `json:"cursor"`
 }
 
 type HasNewNotesResponse struct {
@@ -119,4 +124,15 @@ type RssDate struct {
 
 type RssAuthor struct {
 	Name string `xml:"name"`
+}
+
+type ItemsQuery struct {
+	Sub    string
+	Sort   string
+	Type   string
+	Cursor string
+	Name   string
+	When   string
+	By     string
+	Limit  int
 }
