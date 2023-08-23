@@ -20,10 +20,12 @@ type User struct {
 }
 
 type Comment struct {
-	Id       int       `json:"id,string"`
-	Text     string    `json:"text"`
-	User     User      `json:"user"`
-	Comments []Comment `json:"comments"`
+	Id        int       `json:"id,string"`
+	ParentId  int       `json:"parentId,string"`
+	CreatedAt time.Time `json:"createdAt"`
+	Text      string    `json:"text"`
+	User      User      `json:"user"`
+	Comments  []Comment `json:"comments"`
 }
 
 type CreateCommentsResponse struct {
