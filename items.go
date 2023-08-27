@@ -32,7 +32,6 @@ func Items(query *ItemsQuery) (*ItemsCursor, error) {
 							id
 							name
 						}
-						fwdUserId
 						otsHash
 						position
 						sats
@@ -137,8 +136,8 @@ func PostLink(url string, title string, sub string) (int, error) {
 func CreateComment(parentId int, text string) (int, error) {
 	body := GraphQLPayload{
 		Query: `
-			mutation createComment($text: String!, $parentId: ID!) {
-				createComment(text: $text, parentId: $parentId) {
+			mutation upsertComment($text: String!, $parentId: ID!) {
+			  upsertComment(text: $text, parentId: $parentId) {
 					id
 				}
 			}`,
