@@ -18,7 +18,7 @@ func Items(query *ItemsQuery) (*ItemsCursor, error) {
 
 	body := GraphQLPayload{
 		Query: `
-			query items($sub: String, $sort: String, $cursor: String, $type: String, $name: String, $when: String, $by: String, $limit: Int) {
+			query items($sub: String, $sort: String, $cursor: String, $type: String, $name: String, $when: String, $by: String, $limit: Limit) {
 				items(sub: $sub, sort: $sort, cursor: $cursor, type: $type, name: $name, when: $when, by: $by, limit: $limit) {
 					cursor
 					items {
