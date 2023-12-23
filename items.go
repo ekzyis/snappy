@@ -41,7 +41,7 @@ func Items(query *ItemsQuery) (*ItemsCursor, error) {
 						path
 						upvotes
 						meSats
-						meDontLike
+						meDontLikeSats
 						meBookmark
 						meSubscription
 						outlawed
