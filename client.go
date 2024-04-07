@@ -9,29 +9,39 @@ import (
 	"os"
 )
 
-type ClientOptions struct {
-	BaseUrl string
-	ApiKey  string
-}
-
 type Client struct {
 	BaseUrl string
 	ApiUrl  string
 	ApiKey  string
 }
 
-func NewClient(options *ClientOptions) *Client {
-	if options.BaseUrl == "" {
-		options.BaseUrl = "https://stacker.news"
-	}
-	if options.ApiKey == "" {
-		options.ApiKey = os.Getenv("SN_API_KEY")
+func NewClient(options ...func(*Client)) *Client {
+	c := &Client{}
+	for _, o := range options {
+		o(c)
 	}
 
-	return &Client{
-		BaseUrl: options.BaseUrl,
-		ApiUrl:  fmt.Sprintf("%s/api/graphql", options.BaseUrl),
-		ApiKey:  options.ApiKey,
+	// set defaults
+	if c.BaseUrl == "" {
+		c.BaseUrl = "https://stacker.news"
+	}
+	if c.ApiKey == "" {
+		c.ApiKey = os.Getenv("SN_API_KEY")
+	}
+	c.ApiUrl = fmt.Sprintf("%s/api/graphql", c.BaseUrl)
+
+	return c
+}
+
+func WithApiKey(apiKey string) func(*Client) {
+	return func(c *Client) {
+		c.ApiKey = apiKey
+	}
+}
+
+func WithBaseUrl(baseUrl string) func(*Client) {
+	return func(c *Client) {
+		c.BaseUrl = baseUrl
 	}
 }
 
