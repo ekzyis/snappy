@@ -93,6 +93,10 @@ type DupesError struct {
 	Dupes []Dupe
 }
 
+func (e *DupesError) Error() string {
+	return fmt.Sprintf("found %d dupes for %s", len(e.Dupes), e.Url)
+}
+
 func (c *Client) Items(query *ItemsQuery) (*ItemsCursor, error) {
 	if query == nil {
 		query = &ItemsQuery{}
