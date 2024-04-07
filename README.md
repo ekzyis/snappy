@@ -1,19 +1,19 @@
-# sn-goapi
+# snappy
 
-Package for [stacker.news](https://stacker.news) API access
+<div style="text-align: center">
 
-Install via `go get github.com/ekzyis/sn-goapi`
+<img src="https://stacker.news/favicon.png" width="64" height="64" />
+<img src="https://go.dev/blog/go-brand/Go-Logo/PNG/Go-Logo_Blue.png" width="64" height="64" />
 
-Supports:
+[stacker.news](https://stacker.news) API client package for Go
 
-- [ ] Post of type ...
-  - [ ] ... Discussion
-  - [x] ... Link
-  - [ ] ... Bounty
-  - [ ] ... Poll
-- [x] Reply (comments)
-- [ ] Tips
-- [x] Checking dupes
-- [x] Checking notifications
+</div>
 
-`SN_AUTH_COOKIE` must be set with a valid session cookie.
+
+## How to use
+
+```
+$ go get github.com/ekzyis/snappy
+```
+
+`SN_API_KEY` must be set in your environment for authenticated API access.
