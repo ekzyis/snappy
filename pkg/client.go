@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 )
 
 type ClientOptions struct {
@@ -22,6 +23,9 @@ type Client struct {
 func NewClient(options *ClientOptions) *Client {
 	if options.BaseUrl == "" {
 		options.BaseUrl = "https://stacker.news"
+	}
+	if options.ApiKey == "" {
+		options.ApiKey = os.Getenv("SN_API_KEY")
 	}
 
 	return &Client{
