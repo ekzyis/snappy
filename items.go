@@ -8,7 +8,7 @@ import (
 
 type Item struct {
 	Id        int       `json:"id,string"`
-	ParentId  int       `json:"parentId,string"`
+	ParentId  int       `json:"parentId"`
 	Title     string    `json:"title"`
 	Url       string    `json:"url"`
 	Sats      int       `json:"sats"`
@@ -20,7 +20,7 @@ type Item struct {
 
 type Comment struct {
 	Id        int       `json:"id,string"`
-	ParentId  int       `json:"parentId,string"`
+	ParentId  int       `json:"parentId"`
 	CreatedAt time.Time `json:"createdAt"`
 	Text      string    `json:"text"`
 	User      User      `json:"user"`
@@ -41,6 +41,13 @@ type ItemsQuery struct {
 type ItemsCursor struct {
 	Items  []Item `json:"items"`
 	Cursor string `json:"cursor"`
+}
+
+type ItemResponse struct {
+	Errors []GqlError `json:"errors"`
+	Data   struct {
+		Item Item `json:"item"`
+	} `json:"data"`
 }
 
 type ItemsResponse struct {
@@ -95,6 +102,76 @@ type DupesError struct {
 
 func (e *DupesError) Error() string {
 	return fmt.Sprintf("found %d dupes for %s", len(e.Dupes), e.Url)
+}
+
+func (c *Client) Item(id int) (*Item, error) {
+	body := GqlBody{
+		Query: `
+		query item($id: ID!) {
+			item(id: $id) {
+				id
+				parentId
+				createdAt
+				deletedAt
+				title
+				url
+				user {
+					id
+					name
+				}
+				otsHash
+				position
+				sats
+				boost
+				bounty
+				bountyPaidTo
+				path
+				upvotes
+				meSats
+				meDontLikeSats
+				meBookmark
+				meSubscription
+				outlawed
+				freebie
+				ncomments
+				commentSats
+				lastCommentAt
+				maxBid
+				isJob
+				company
+				location
+				remote
+				subName
+				pollCost
+				status
+				uploadId
+				mine
+				position
+			}
+		}`,
+		Variables: map[string]interface{}{
+			"id": id,
+		},
+	}
+
+	resp, err := c.callApi(body)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var respBody ItemResponse
+	err = json.NewDecoder(resp.Body).Decode(&respBody)
+	if err != nil {
+		err = fmt.Errorf("error decoding item: %w", err)
+		return nil, err
+	}
+
+	err = c.checkForErrors(respBody.Errors)
+	if err != nil {
+		return nil, err
+	}
+	return &respBody.Data.Item, nil
 }
 
 func (c *Client) Items(query *ItemsQuery) (*ItemsCursor, error) {
