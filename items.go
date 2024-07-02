@@ -57,24 +57,30 @@ type ItemsResponse struct {
 	} `json:"data"`
 }
 
+type ItemPaidAction struct {
+	Result        Item          `json:"result"`
+	Invoice       Invoice       `json:"invoice"`
+	PaymentMethod PaymentMethod `json:"paymentMethod"`
+}
+
 type UpsertDiscussionResponse struct {
 	Errors []GqlError `json:"errors"`
 	Data   struct {
-		UpsertDiscussion Item `json:"upsertDiscussion"`
+		UpsertDiscussion ItemPaidAction `json:"upsertDiscussion"`
 	} `json:"data"`
 }
 
 type UpsertLinkResponse struct {
 	Errors []GqlError `json:"errors"`
 	Data   struct {
-		UpsertLink Item `json:"upsertLink"`
+		UpsertLink ItemPaidAction `json:"upsertLink"`
 	} `json:"data"`
 }
 
 type CreateCommentsResponse struct {
 	Errors []GqlError `json:"errors"`
 	Data   struct {
-		CreateComment Comment `json:"createComment"`
+		CreateComment ItemPaidAction `json:"createComment"`
 	} `json:"data"`
 }
 
@@ -266,7 +272,7 @@ func (c *Client) PostDiscussion(title string, text string, sub string) (int, err
 		Query: `
 		mutation upsertDiscussion($title: String!, $text: String, $sub: String) {
 			upsertDiscussion(title: $title, text: $text, sub: $sub) {
-				id
+				result { id }
 			}
 		}`,
 		Variables: map[string]interface{}{
@@ -294,7 +300,7 @@ func (c *Client) PostDiscussion(title string, text string, sub string) (int, err
 		return -1, err
 	}
 
-	return respBody.Data.UpsertDiscussion.Id, nil
+	return respBody.Data.UpsertDiscussion.Result.Id, nil
 }
 
 func (c *Client) PostLink(url string, title string, text string, sub string) (int, error) {
@@ -302,7 +308,7 @@ func (c *Client) PostLink(url string, title string, text string, sub string) (in
 		Query: `
 		mutation upsertLink($url: String!, $title: String!, $text: String, $sub: String!) {
 			upsertLink(url: $url, title: $title, text: $text, sub: $sub) {
-				id
+				result { id }
 			}
 		}`,
 		Variables: map[string]interface{}{
@@ -331,7 +337,7 @@ func (c *Client) PostLink(url string, title string, text string, sub string) (in
 		return -1, err
 	}
 
-	return respBody.Data.UpsertLink.Id, nil
+	return respBody.Data.UpsertLink.Result.Id, nil
 }
 
 func (c *Client) CreateComment(parentId int, text string) (int, error) {
@@ -339,7 +345,7 @@ func (c *Client) CreateComment(parentId int, text string) (int, error) {
 		Query: `
 		mutation upsertComment($parentId: ID!, $text: String!) {
 			upsertComment(parentId: $parentId, text: $text) {
-				id
+				result { id }
 			}
 		}`,
 		Variables: map[string]interface{}{
@@ -366,7 +372,7 @@ func (c *Client) CreateComment(parentId int, text string) (int, error) {
 		return -1, err
 	}
 
-	return respBody.Data.CreateComment.Id, nil
+	return respBody.Data.CreateComment.Result.Id, nil
 }
 
 func (c *Client) Dupes(url string) (*[]Dupe, error) {
