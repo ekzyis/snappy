@@ -77,10 +77,10 @@ type UpsertLinkResponse struct {
 	} `json:"data"`
 }
 
-type CreateCommentsResponse struct {
+type UpsertCommentResponse struct {
 	Errors []GqlError `json:"errors"`
 	Data   struct {
-		CreateComment ItemPaidAction `json:"createComment"`
+		UpsertComment ItemPaidAction `json:"upsertComment"`
 	} `json:"data"`
 }
 
@@ -360,7 +360,7 @@ func (c *Client) CreateComment(parentId int, text string) (int, error) {
 	}
 	defer resp.Body.Close()
 
-	var respBody CreateCommentsResponse
+	var respBody UpsertCommentResponse
 	err = json.NewDecoder(resp.Body).Decode(&respBody)
 	if err != nil {
 		err = fmt.Errorf("error decoding upsertComment: %w", err)
@@ -372,7 +372,7 @@ func (c *Client) CreateComment(parentId int, text string) (int, error) {
 		return -1, err
 	}
 
-	return respBody.Data.CreateComment.Result.Id, nil
+	return respBody.Data.UpsertComment.Result.Id, nil
 }
 
 func (c *Client) Dupes(url string) (*[]Dupe, error) {
