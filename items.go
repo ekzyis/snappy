@@ -11,6 +11,7 @@ type Item struct {
 	ParentId  int       `json:"parentId"`
 	Title     string    `json:"title"`
 	Url       string    `json:"url"`
+	Text      string    `json:"text"`
 	Sats      int       `json:"sats"`
 	CreatedAt time.Time `json:"createdAt"`
 	Comments  []Comment `json:"comments"`
@@ -197,6 +198,7 @@ func (c *Client) Items(query *ItemsQuery) (*ItemsCursor, error) {
 					deletedAt
 					title
 					url
+					text
 					user {
 						id
 						name
