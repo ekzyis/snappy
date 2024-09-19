@@ -118,42 +118,17 @@ func (c *Client) Item(id int) (*Item, error) {
 			item(id: $id) {
 				id
 				parentId
-				createdAt
-				deletedAt
 				title
 				url
+				text
+				sats
+				createdAt
+				deletedAt
+				ncomments
 				user {
 					id
 					name
 				}
-				otsHash
-				position
-				sats
-				boost
-				bounty
-				bountyPaidTo
-				path
-				upvotes
-				meSats
-				meDontLikeSats
-				meBookmark
-				meSubscription
-				outlawed
-				freebie
-				ncomments
-				commentSats
-				lastCommentAt
-				maxBid
-				isJob
-				company
-				location
-				remote
-				subName
-				pollCost
-				status
-				uploadId
-				mine
-				position
 			}
 		}`,
 		Variables: map[string]interface{}{
@@ -194,43 +169,17 @@ func (c *Client) Items(query *ItemsQuery) (*ItemsCursor, error) {
 				items {
 					id
 					parentId
-					createdAt
-					deletedAt
 					title
 					url
 					text
+					sats
+					createdAt
+					deletedAt
+					ncomments
 					user {
 						id
 						name
 					}
-					otsHash
-					position
-					sats
-					boost
-					bounty
-					bountyPaidTo
-					path
-					upvotes
-					meSats
-					meDontLikeSats
-					meBookmark
-					meSubscription
-					outlawed
-					freebie
-					ncomments
-					commentSats
-					lastCommentAt
-					maxBid
-					isJob
-					company
-					location
-					remote
-					subName
-					pollCost
-					status
-					uploadId
-					mine
-					position
 				},
 			}
 		}`,
