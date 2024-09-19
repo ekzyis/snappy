@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+
+	"gopkg.in/guregu/null.v4"
 )
 
 type Item struct {
@@ -14,6 +16,7 @@ type Item struct {
 	Text      string    `json:"text"`
 	Sats      int       `json:"sats"`
 	CreatedAt time.Time `json:"createdAt"`
+	DeletedAt null.Time `json:"deletedAt"`
 	Comments  []Comment `json:"comments"`
 	NComments int       `json:"ncomments"`
 	User      User      `json:"user"`
