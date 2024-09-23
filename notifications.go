@@ -93,6 +93,14 @@ func (c *Client) Mentions() ([]Notification, error) {
 	)
 }
 
+func (c *Client) Replies() ([]Notification, error) {
+	return c.filterNotifications(
+		func(n Notification) bool {
+			return n.Type == "Reply"
+		},
+	)
+}
+
 func (c *Client) filterNotifications(f func(Notification) bool) ([]Notification, error) {
 	var (
 		n   *NotificationsCursor
