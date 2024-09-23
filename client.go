@@ -10,9 +10,10 @@ import (
 )
 
 type Client struct {
-	BaseUrl string
-	ApiUrl  string
-	ApiKey  string
+	BaseUrl  string
+	ApiUrl   string
+	ApiKey   string
+	MediaUrl string
 }
 
 func NewClient(options ...func(*Client)) *Client {
@@ -28,6 +29,9 @@ func NewClient(options ...func(*Client)) *Client {
 	if c.ApiKey == "" {
 		c.ApiKey = os.Getenv("SN_API_KEY")
 	}
+	if c.MediaUrl == "" {
+		c.MediaUrl = "https://m.stacker.news"
+	}
 	c.ApiUrl = fmt.Sprintf("%s/api/graphql", c.BaseUrl)
 
 	return c
@@ -42,6 +46,12 @@ func WithApiKey(apiKey string) func(*Client) {
 func WithBaseUrl(baseUrl string) func(*Client) {
 	return func(c *Client) {
 		c.BaseUrl = baseUrl
+	}
+}
+
+func WithMediaUrl(mediaUrl string) func(*Client) {
+	return func(c *Client) {
+		c.MediaUrl = mediaUrl
 	}
 }
 
