@@ -26,11 +26,17 @@ type GetSignedPOSTResponse struct {
 func (c *Client) UploadImage(img *image.RGBA) (string, error) {
 	var (
 		b      = img.Bounds()
-		width  = b.Max.X
-		height = b.Max.Y
-		size   = width * height
+		width  = b.Dx()
+		height = b.Dy()
 		type_  = "image/png"
+		size   int
 	)
+
+	var imgBuf bytes.Buffer
+	if err := png.Encode(&imgBuf, img); err != nil {
+		return "", err
+	}
+	size = imgBuf.Len()
 
 	// get signed URL for S3 upload
 	body := GqlBody{
@@ -99,9 +105,7 @@ func (c *Client) UploadImage(img *image.RGBA) (string, error) {
 	if fw, err = w.CreateFormFile("file", "image.png"); err != nil {
 		return "", err
 	}
-	if err = png.Encode(fw, img); err != nil {
-		return "", err
-	}
+	fw.Write(imgBuf.Bytes())
 
 	if err = w.Close(); err != nil {
 		return "", err
