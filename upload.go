@@ -86,7 +86,7 @@ func (c *Client) UploadImage(img *image.RGBA) (string, error) {
 	}
 
 	for k, v := range map[string]string{
-		"Content-type":  type_,
+		"Content-Type":  type_,
 		"Cache-Control": "max-age=31536000",
 		"acl":           "public-read",
 	} {
