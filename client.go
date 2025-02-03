@@ -23,14 +23,21 @@ func NewClient(options ...func(*Client)) *Client {
 	}
 
 	// set defaults
+	var ok bool
 	if c.BaseUrl == "" {
-		c.BaseUrl = "https://stacker.news"
+		c.BaseUrl, ok = os.LookupEnv("SN_BASE_URL")
+		if !ok {
+			c.BaseUrl = "https://stacker.news"
+		}
 	}
 	if c.ApiKey == "" {
 		c.ApiKey = os.Getenv("SN_API_KEY")
 	}
 	if c.MediaUrl == "" {
-		c.MediaUrl = "https://m.stacker.news"
+		c.MediaUrl, ok = os.LookupEnv("SN_MEDIA_URL")
+		if !ok {
+			c.MediaUrl = "https://m.stacker.news"
+		}
 	}
 	c.ApiUrl = fmt.Sprintf("%s/api/graphql", c.BaseUrl)
 
