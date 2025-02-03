@@ -226,7 +226,17 @@ func (c *Client) PostDiscussion(title string, text string, sub string) (int, err
 		Query: `
 		mutation upsertDiscussion($title: String!, $text: String, $sub: String) {
 			upsertDiscussion(title: $title, text: $text, sub: $sub) {
-				result { id }
+				result {
+					id
+				}
+				invoice {
+					id
+					hash
+					bolt11
+					satsRequested
+					expiresAt
+				}
+				paymentMethod
 			}
 		}`,
 		Variables: map[string]interface{}{
@@ -254,6 +264,11 @@ func (c *Client) PostDiscussion(title string, text string, sub string) (int, err
 		return -1, err
 	}
 
+	inv := respBody.Data.UpsertDiscussion.Invoice
+	if inv.Id != 0 {
+		return -1, fmt.Errorf("mutation requires %d sats as payment", inv.SatsRequested)
+	}
+
 	return respBody.Data.UpsertDiscussion.Result.Id, nil
 }
 
@@ -262,7 +277,17 @@ func (c *Client) PostLink(url string, title string, text string, sub string) (in
 		Query: `
 		mutation upsertLink($url: String!, $title: String!, $text: String, $sub: String!) {
 			upsertLink(url: $url, title: $title, text: $text, sub: $sub) {
-				result { id }
+				result {
+					id
+				}
+				invoice {
+					id
+					hash
+					bolt11
+					satsRequested
+					expiresAt
+				}
+				paymentMethod
 			}
 		}`,
 		Variables: map[string]interface{}{
@@ -291,6 +316,11 @@ func (c *Client) PostLink(url string, title string, text string, sub string) (in
 		return -1, err
 	}
 
+	inv := respBody.Data.UpsertLink.Invoice
+	if inv.Id != 0 {
+		return -1, fmt.Errorf("mutation requires %d sats as payment", inv.SatsRequested)
+	}
+
 	return respBody.Data.UpsertLink.Result.Id, nil
 }
 
@@ -299,7 +329,17 @@ func (c *Client) CreateComment(parentId int, text string) (int, error) {
 		Query: `
 		mutation upsertComment($parentId: ID!, $text: String!) {
 			upsertComment(parentId: $parentId, text: $text) {
-				result { id }
+				result {
+					id
+				}
+				invoice {
+					id
+					hash
+					bolt11
+					satsRequested
+					expiresAt
+				}
+				paymentMethod
 			}
 		}`,
 		Variables: map[string]interface{}{
@@ -324,6 +364,11 @@ func (c *Client) CreateComment(parentId int, text string) (int, error) {
 	err = c.checkForErrors(respBody.Errors)
 	if err != nil {
 		return -1, err
+	}
+
+	inv := respBody.Data.UpsertComment.Invoice
+	if inv.Id != 0 {
+		return -1, fmt.Errorf("mutation requires %d sats as payment", inv.SatsRequested)
 	}
 
 	return respBody.Data.UpsertComment.Result.Id, nil
