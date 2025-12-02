@@ -61,30 +61,29 @@ type ItemsResponse struct {
 	} `json:"data"`
 }
 
-type ItemPaidAction struct {
-	Result        Item          `json:"result"`
-	Invoice       Invoice       `json:"invoice"`
-	PaymentMethod PaymentMethod `json:"paymentMethod"`
+type PayIn struct {
+	Id   int  `json:"id"`
+	Item Item `json:"item"`
 }
 
 type UpsertDiscussionResponse struct {
 	Errors []GqlError `json:"errors"`
 	Data   struct {
-		UpsertDiscussion ItemPaidAction `json:"upsertDiscussion"`
+		UpsertDiscussion PayIn `json:"upsertDiscussion"`
 	} `json:"data"`
 }
 
 type UpsertLinkResponse struct {
 	Errors []GqlError `json:"errors"`
 	Data   struct {
-		UpsertLink ItemPaidAction `json:"upsertLink"`
+		UpsertLink PayIn `json:"upsertLink"`
 	} `json:"data"`
 }
 
 type UpsertCommentResponse struct {
 	Errors []GqlError `json:"errors"`
 	Data   struct {
-		UpsertComment ItemPaidAction `json:"upsertComment"`
+		UpsertComment PayIn `json:"upsertComment"`
 	} `json:"data"`
 }
 
@@ -226,17 +225,10 @@ func (c *Client) PostDiscussion(title string, text string, sub string) (int, err
 		Query: `
 		mutation upsertDiscussion($title: String!, $text: String, $sub: String) {
 			upsertDiscussion(title: $title, text: $text, sub: $sub) {
-				result {
+				id
+				item {
 					id
 				}
-				invoice {
-					id
-					hash
-					bolt11
-					satsRequested
-					expiresAt
-				}
-				paymentMethod
 			}
 		}`,
 		Variables: map[string]interface{}{
@@ -264,12 +256,12 @@ func (c *Client) PostDiscussion(title string, text string, sub string) (int, err
 		return -1, err
 	}
 
-	inv := respBody.Data.UpsertDiscussion.Invoice
-	if inv.Id != 0 {
-		return -1, fmt.Errorf("mutation requires %d sats as payment", inv.SatsRequested)
+	item := respBody.Data.UpsertDiscussion.Item
+	if item.Id == 0 {
+		return -1, fmt.Errorf("API returned no item id")
 	}
 
-	return respBody.Data.UpsertDiscussion.Result.Id, nil
+	return item.Id, nil
 }
 
 func (c *Client) PostLink(url string, title string, text string, sub string) (int, error) {
@@ -277,17 +269,10 @@ func (c *Client) PostLink(url string, title string, text string, sub string) (in
 		Query: `
 		mutation upsertLink($url: String!, $title: String!, $text: String, $sub: String!) {
 			upsertLink(url: $url, title: $title, text: $text, sub: $sub) {
-				result {
+				id
+				item {
 					id
 				}
-				invoice {
-					id
-					hash
-					bolt11
-					satsRequested
-					expiresAt
-				}
-				paymentMethod
 			}
 		}`,
 		Variables: map[string]interface{}{
@@ -316,12 +301,12 @@ func (c *Client) PostLink(url string, title string, text string, sub string) (in
 		return -1, err
 	}
 
-	inv := respBody.Data.UpsertLink.Invoice
-	if inv.Id != 0 {
-		return -1, fmt.Errorf("mutation requires %d sats as payment", inv.SatsRequested)
+	item := respBody.Data.UpsertLink.Item
+	if item.Id == 0 {
+		return -1, fmt.Errorf("API returned no item id")
 	}
 
-	return respBody.Data.UpsertLink.Result.Id, nil
+	return item.Id, nil
 }
 
 func (c *Client) CreateComment(parentId int, text string) (int, error) {
@@ -329,17 +314,10 @@ func (c *Client) CreateComment(parentId int, text string) (int, error) {
 		Query: `
 		mutation upsertComment($parentId: ID!, $text: String!) {
 			upsertComment(parentId: $parentId, text: $text) {
-				result {
+				id
+				item {
 					id
 				}
-				invoice {
-					id
-					hash
-					bolt11
-					satsRequested
-					expiresAt
-				}
-				paymentMethod
 			}
 		}`,
 		Variables: map[string]interface{}{
@@ -366,12 +344,12 @@ func (c *Client) CreateComment(parentId int, text string) (int, error) {
 		return -1, err
 	}
 
-	inv := respBody.Data.UpsertComment.Invoice
-	if inv.Id != 0 {
-		return -1, fmt.Errorf("mutation requires %d sats as payment", inv.SatsRequested)
+	item := respBody.Data.UpsertComment.Item
+	if item.Id == 0 {
+		return -1, fmt.Errorf("API returned no item id")
 	}
 
-	return respBody.Data.UpsertComment.Result.Id, nil
+	return item.Id, nil
 }
 
 func (c *Client) Dupes(url string) (*[]Dupe, error) {
