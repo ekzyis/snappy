@@ -62,8 +62,16 @@ type ItemsResponse struct {
 }
 
 type PayIn struct {
-	Id   int  `json:"id"`
-	Item Item `json:"item"`
+	Id            int `json:"id"`
+	PayerPrivates struct {
+		PayInFailureReason string `json:"payInFailureReason"`
+		PayInBolt11        struct {
+			Id int `json:"id"`
+		} `json:"payInBolt11"`
+		Result struct {
+			Id int `json:"id,string"`
+		} `json:"result"`
+	} `json:"payerPrivates"`
 }
 
 type UpsertDiscussionResponse struct {
@@ -226,8 +234,16 @@ func (c *Client) PostDiscussion(title string, text string, sub string) (int, err
 		mutation upsertDiscussion($title: String!, $text: String, $sub: String) {
 			upsertDiscussion(title: $title, text: $text, sub: $sub) {
 				id
-				item {
-					id
+				payerPrivates {
+					payInFailureReason
+					payInBolt11 {
+						id
+					}
+					result {
+						... on Item {
+							id
+						}
+					}
 				}
 			}
 		}`,
@@ -256,12 +272,13 @@ func (c *Client) PostDiscussion(title string, text string, sub string) (int, err
 		return -1, err
 	}
 
-	item := respBody.Data.UpsertDiscussion.Item
-	if item.Id == 0 {
-		return -1, fmt.Errorf("API returned no item id")
+	payIn := respBody.Data.UpsertDiscussion
+	err = c.checkForPayInErrors(payIn)
+	if err != nil {
+		return -1, err
 	}
 
-	return item.Id, nil
+	return payIn.PayerPrivates.Result.Id, nil
 }
 
 func (c *Client) PostLink(url string, title string, text string, sub string) (int, error) {
@@ -270,8 +287,16 @@ func (c *Client) PostLink(url string, title string, text string, sub string) (in
 		mutation upsertLink($url: String!, $title: String!, $text: String, $sub: String!) {
 			upsertLink(url: $url, title: $title, text: $text, sub: $sub) {
 				id
-				item {
-					id
+				payerPrivates {
+					payInFailureReason
+					payInBolt11 {
+						id
+					}
+					result {
+						... on Item {
+							id
+						}
+					}
 				}
 			}
 		}`,
@@ -301,12 +326,13 @@ func (c *Client) PostLink(url string, title string, text string, sub string) (in
 		return -1, err
 	}
 
-	item := respBody.Data.UpsertLink.Item
-	if item.Id == 0 {
-		return -1, fmt.Errorf("API returned no item id")
+	payIn := respBody.Data.UpsertLink
+	err = c.checkForPayInErrors(payIn)
+	if err != nil {
+		return -1, err
 	}
 
-	return item.Id, nil
+	return payIn.PayerPrivates.Result.Id, nil
 }
 
 func (c *Client) CreateComment(parentId int, text string) (int, error) {
@@ -315,8 +341,16 @@ func (c *Client) CreateComment(parentId int, text string) (int, error) {
 		mutation upsertComment($parentId: ID!, $text: String!) {
 			upsertComment(parentId: $parentId, text: $text) {
 				id
-				item {
-					id
+				payerPrivates {
+					payInFailureReason
+					payInBolt11 {
+						id
+					}
+					result {
+						... on Item {
+							id
+						}
+					}
 				}
 			}
 		}`,
@@ -344,12 +378,13 @@ func (c *Client) CreateComment(parentId int, text string) (int, error) {
 		return -1, err
 	}
 
-	item := respBody.Data.UpsertComment.Item
-	if item.Id == 0 {
-		return -1, fmt.Errorf("API returned no item id")
+	payIn := respBody.Data.UpsertComment
+	err = c.checkForPayInErrors(payIn)
+	if err != nil {
+		return -1, err
 	}
 
-	return item.Id, nil
+	return payIn.PayerPrivates.Result.Id, nil
 }
 
 func (c *Client) Dupes(url string) (*[]Dupe, error) {

@@ -107,3 +107,22 @@ func (c *Client) checkForErrors(err []GqlError) error {
 	}
 	return nil
 }
+
+func (c *Client) checkForPayInErrors(payIn PayIn) error {
+	privates := payIn.PayerPrivates
+	if privates.PayInFailureReason != "" {
+		return fmt.Errorf("mutation failed: %s", privates.PayInFailureReason)
+	}
+
+	bolt11 := privates.PayInBolt11
+	if bolt11.Id != 0 {
+		return fmt.Errorf("mutation failed: bolt11 payment required")
+	}
+
+	result := privates.Result
+	if result.Id == 0 {
+		return fmt.Errorf("mutation failed: no result id")
+	}
+
+	return nil
+}
