@@ -48,14 +48,14 @@ func TestMutationCreateComment(t *testing.T) {
 
 func TestMutationPostDiscussion(t *testing.T) {
 	var (
-		title = "test discussion"
-		text  = "test discussion text"
-		sub   = "bitcoin"
-		err   error
+		title    = "test discussion"
+		text     = "test discussion text"
+		subNames = []string{"bitcoin"}
+		err      error
 	)
 
 	// TODO: return result, invoice, paymentMethod from CreateComment and run assertions on that
-	if _, err = c.PostDiscussion(title, text, sub); err != nil {
+	if _, err = c.PostDiscussion(title, text, subNames); err != nil {
 		t.Error(err)
 		return
 	}
@@ -63,15 +63,15 @@ func TestMutationPostDiscussion(t *testing.T) {
 
 func TestMutationPostLink(t *testing.T) {
 	var (
-		url   = "https://stacker.news"
-		title = "test discussion"
-		text  = "test discussion text"
-		sub   = "bitcoin"
-		err   error
+		url      = "https://stacker.news"
+		title    = "test discussion"
+		text     = "test discussion text"
+		subNames = []string{"bitcoin"}
+		err      error
 	)
 
 	// TODO: return result, invoice, paymentMethod from CreateComment and run assertions on that
-	if _, err = c.PostLink(url, title, text, sub); err != nil {
+	if _, err = c.PostLink(url, title, text, subNames); err != nil {
 		t.Error(err)
 		return
 	}

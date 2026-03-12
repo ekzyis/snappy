@@ -228,11 +228,11 @@ func (c *Client) Items(query *ItemsQuery) (*ItemsCursor, error) {
 	return &respBody.Data.Items, nil
 }
 
-func (c *Client) PostDiscussion(title string, text string, sub string) (int, error) {
+func (c *Client) PostDiscussion(title string, text string, subNames []string) (int, error) {
 	body := GqlBody{
 		Query: `
-		mutation upsertDiscussion($title: String!, $text: String, $sub: String) {
-			upsertDiscussion(title: $title, text: $text, sub: $sub) {
+		mutation upsertDiscussion($title: String!, $text: String, $subNames: [String!]) {
+			upsertDiscussion(title: $title, text: $text, subNames: $subNames) {
 				id
 				payerPrivates {
 					payInFailureReason
@@ -248,9 +248,9 @@ func (c *Client) PostDiscussion(title string, text string, sub string) (int, err
 			}
 		}`,
 		Variables: map[string]interface{}{
-			"title": title,
-			"text":  text,
-			"sub":   sub,
+			"title":    title,
+			"text":     text,
+			"subNames": subNames,
 		},
 	}
 
@@ -281,11 +281,11 @@ func (c *Client) PostDiscussion(title string, text string, sub string) (int, err
 	return payIn.PayerPrivates.Result.Id, nil
 }
 
-func (c *Client) PostLink(url string, title string, text string, sub string) (int, error) {
+func (c *Client) PostLink(url string, title string, text string, subNames []string) (int, error) {
 	body := GqlBody{
 		Query: `
-		mutation upsertLink($url: String!, $title: String!, $text: String, $sub: String!) {
-			upsertLink(url: $url, title: $title, text: $text, sub: $sub) {
+		mutation upsertLink($url: String!, $title: String!, $text: String, $subNames: [String!]) {
+			upsertLink(url: $url, title: $title, text: $text, subNames: $subNames) {
 				id
 				payerPrivates {
 					payInFailureReason
@@ -301,10 +301,10 @@ func (c *Client) PostLink(url string, title string, text string, sub string) (in
 			}
 		}`,
 		Variables: map[string]interface{}{
-			"url":   url,
-			"title": title,
-			"text":  text,
-			"sub":   sub,
+			"url":      url,
+			"title":    title,
+			"text":     text,
+			"subNames": subNames,
 		},
 	}
 
