@@ -64,8 +64,8 @@ func TestMutationPostDiscussion(t *testing.T) {
 func TestMutationPostLink(t *testing.T) {
 	var (
 		url      = "https://stacker.news"
-		title    = "test discussion"
-		text     = "test discussion text"
+		title    = "test link"
+		text     = "test link text"
 		subNames = []string{"bitcoin"}
 		err      error
 	)
