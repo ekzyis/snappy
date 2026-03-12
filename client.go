@@ -84,6 +84,7 @@ func (c *Client) callApi(body GqlBody) (*http.Response, error) {
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) Chrome/120.0")
 	if c.ApiKey != "" {
 		req.Header.Set("X-Api-Key", c.ApiKey)
 	}
