@@ -14,3 +14,9 @@ $ go get github.com/ekzyis/snappy
 ```
 
 `SN_API_KEY` must be set in your environment for authenticated API access.
+
+## How to test
+
+1. Run SN
+2. Set `TEST_SN_BASE_URL` and `TEST_SN_API_KEY` in .env
+3. Run `go test`
