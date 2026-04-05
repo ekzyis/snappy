@@ -1,29 +1,14 @@
-package sn
+package client
 
 import (
 	"encoding/json"
 	"fmt"
+
+	t "github.com/ekzyis/snappy/types"
 )
 
-type User struct {
-	Id       int          `json:"id,string"`
-	Name     string       `json:"name"`
-	Privates UserPrivates `json:"privates"`
-}
-
-type UserPrivates struct {
-	Sats int `json:"sats"`
-}
-
-type MeResponse struct {
-	Errors []GqlError `json:"errors"`
-	Data   struct {
-		Me User `json:"me"`
-	} `json:"data"`
-}
-
-func (c *Client) Me() (*User, error) {
-	body := GqlBody{
+func (c *Client) Me() (*t.User, error) {
+	body := t.GqlBody{
 		Query: `
 		query me {
 			me {
@@ -42,7 +27,7 @@ func (c *Client) Me() (*User, error) {
 	}
 	defer resp.Body.Close()
 
-	var respBody MeResponse
+	var respBody t.MeResponse
 	err = json.NewDecoder(resp.Body).Decode(&respBody)
 	if err != nil {
 		err = fmt.Errorf("error decoding me: %w", err)

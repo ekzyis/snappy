@@ -19,4 +19,4 @@ $ go get github.com/ekzyis/snappy
 
 1. Run SN
 2. Set `TEST_SN_BASE_URL` and `TEST_SN_API_KEY` in .env
-3. Run `go test`
+3. Run `go test ./...`

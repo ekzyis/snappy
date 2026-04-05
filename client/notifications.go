@@ -1,32 +1,14 @@
-package sn
+package client
 
 import (
 	"encoding/json"
 	"fmt"
-	"time"
+
+	t "github.com/ekzyis/snappy/types"
 )
 
-type Notification struct {
-	Id   int    `json:"id,string"`
-	Type string `json:"__typename"`
-	Item Item   `json:"item"`
-}
-
-type NotificationsCursor struct {
-	LastChecked   time.Time      `json:"lastChecked"`
-	Cursor        string         `json:"cursor"`
-	Notifications []Notification `json:"notifications"`
-}
-
-type NotificationsResponse struct {
-	Errors []GqlError `json:"errors"`
-	Data   struct {
-		Notifications NotificationsCursor `json:"notifications"`
-	} `json:"data"`
-}
-
-func (c *Client) Notifications() (*NotificationsCursor, error) {
-	body := GqlBody{
+func (c *Client) Notifications() (*t.NotificationsCursor, error) {
+	body := t.GqlBody{
 		Query: `
 		fragment ItemFields on Item {
 			id
@@ -71,7 +53,7 @@ func (c *Client) Notifications() (*NotificationsCursor, error) {
 	}
 	defer resp.Body.Close()
 
-	var respBody NotificationsResponse
+	var respBody t.NotificationsResponse
 	err = json.NewDecoder(resp.Body).Decode(&respBody)
 	if err != nil {
 		err = fmt.Errorf("error decoding notifications: %w", err)
@@ -85,25 +67,25 @@ func (c *Client) Notifications() (*NotificationsCursor, error) {
 	return &respBody.Data.Notifications, nil
 }
 
-func (c *Client) Mentions() ([]Notification, error) {
+func (c *Client) Mentions() ([]t.Notification, error) {
 	return c.filterNotifications(
-		func(n Notification) bool {
+		func(n t.Notification) bool {
 			return n.Type == "Mention"
 		},
 	)
 }
 
-func (c *Client) Replies() ([]Notification, error) {
+func (c *Client) Replies() ([]t.Notification, error) {
 	return c.filterNotifications(
-		func(n Notification) bool {
+		func(n t.Notification) bool {
 			return n.Type == "Reply"
 		},
 	)
 }
 
-func (c *Client) filterNotifications(f func(Notification) bool) ([]Notification, error) {
+func (c *Client) filterNotifications(f func(t.Notification) bool) ([]t.Notification, error) {
 	var (
-		n   *NotificationsCursor
+		n   *t.NotificationsCursor
 		err error
 	)
 

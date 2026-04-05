@@ -1,4 +1,4 @@
-package sn
+package client
 
 import (
 	"bytes"
@@ -9,19 +9,9 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+
+	t "github.com/ekzyis/snappy/types"
 )
-
-type GetSignedPOST struct {
-	Url    string            `json:"url"`
-	Fields map[string]string `json:"fields"`
-}
-
-type GetSignedPOSTResponse struct {
-	Errors []GqlError `json:"errors"`
-	Data   struct {
-		GetSignedPOST GetSignedPOST `json:"getSignedPOST"`
-	} `json:"data"`
-}
 
 func (c *Client) UploadImage(img *image.RGBA) (string, error) {
 	var (
@@ -39,7 +29,7 @@ func (c *Client) UploadImage(img *image.RGBA) (string, error) {
 	size = imgBuf.Len()
 
 	// get signed URL for S3 upload
-	body := GqlBody{
+	body := t.GqlBody{
 		Query: `
 		mutation getSignedPOST($type: String!, $size: Int!, $width: Int!, $height: Int!, $avatar: Boolean) {
 			getSignedPOST(type: $type, size: $size, width: $width, height: $height, avatar: $avatar) {
@@ -62,7 +52,7 @@ func (c *Client) UploadImage(img *image.RGBA) (string, error) {
 	}
 	defer resp.Body.Close()
 
-	var respBody GetSignedPOSTResponse
+	var respBody t.GetSignedPOSTResponse
 	err = json.NewDecoder(resp.Body).Decode(&respBody)
 	if err != nil {
 		err = fmt.Errorf("error decoding getSignedPOST: %w", err)

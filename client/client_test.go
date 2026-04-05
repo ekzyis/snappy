@@ -1,10 +1,11 @@
-package sn_test
+package client_test
 
 import (
 	"bufio"
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -105,8 +106,9 @@ func loadEnv() {
 		err error
 	)
 
-	if f, err = os.Open(".env"); err != nil {
-		log.Fatalf("error opening .env: %v", err)
+	envPath := filepath.Join("..", ".env")
+	if f, err = os.Open(envPath); err != nil {
+		log.Fatalf("error opening %s: %v", envPath, err)
 	}
 	defer f.Close()
 

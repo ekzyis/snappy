@@ -1,10 +1,7 @@
-package sn
+package types
 
 import (
 	"encoding/xml"
-	"fmt"
-	"log"
-	"net/http"
 	"time"
 )
 
@@ -47,24 +44,4 @@ func (c *RssDate) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 	}
 	*c = RssDate{parse}
 	return nil
-}
-
-func (c *Client) GetRssFeed() (*Rss, error) {
-	url := fmt.Sprintf("%s/rss", c.BaseUrl)
-	resp, err := http.Get(url)
-	if err != nil {
-		err = fmt.Errorf("error fetching RSS feed: %w", err)
-		log.Println(err)
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	var rss Rss
-	err = xml.NewDecoder(resp.Body).Decode(&rss)
-	if err != nil {
-		err = fmt.Errorf("error decoding RSS feed XML: %w", err)
-		return nil, err
-	}
-
-	return &rss, nil
 }

@@ -1,128 +1,14 @@
-package sn
+package client
 
 import (
 	"encoding/json"
 	"fmt"
-	"time"
 
-	"gopkg.in/guregu/null.v4"
+	t "github.com/ekzyis/snappy/types"
 )
 
-type Item struct {
-	Id        int       `json:"id,string"`
-	ParentId  int       `json:"parentId"`
-	Title     string    `json:"title"`
-	Url       string    `json:"url"`
-	Text      string    `json:"text"`
-	Sats      int       `json:"sats"`
-	CreatedAt time.Time `json:"createdAt"`
-	DeletedAt null.Time `json:"deletedAt"`
-	Comments  []Comment `json:"comments"`
-	NComments int       `json:"ncomments"`
-	User      User      `json:"user"`
-}
-
-type Comment struct {
-	Id        int       `json:"id,string"`
-	ParentId  int       `json:"parentId"`
-	CreatedAt time.Time `json:"createdAt"`
-	Text      string    `json:"text"`
-	User      User      `json:"user"`
-	Comments  []Comment `json:"comments"`
-}
-
-type ItemsQuery struct {
-	Sub    string
-	Sort   string
-	Type   string
-	Cursor string
-	Name   string
-	When   string
-	By     string
-	Limit  int
-}
-
-type ItemsCursor struct {
-	Items  []Item `json:"items"`
-	Cursor string `json:"cursor"`
-}
-
-type ItemResponse struct {
-	Errors []GqlError `json:"errors"`
-	Data   struct {
-		Item Item `json:"item"`
-	} `json:"data"`
-}
-
-type ItemsResponse struct {
-	Errors []GqlError `json:"errors"`
-	Data   struct {
-		Items ItemsCursor `json:"items"`
-	} `json:"data"`
-}
-
-type PayIn struct {
-	Id            int `json:"id"`
-	PayerPrivates struct {
-		PayInFailureReason string `json:"payInFailureReason"`
-		PayInBolt11        struct {
-			Id int `json:"id"`
-		} `json:"payInBolt11"`
-		Result struct {
-			Id int `json:"id,string"`
-		} `json:"result"`
-	} `json:"payerPrivates"`
-}
-
-type UpsertDiscussionResponse struct {
-	Errors []GqlError `json:"errors"`
-	Data   struct {
-		UpsertDiscussion PayIn `json:"upsertDiscussion"`
-	} `json:"data"`
-}
-
-type UpsertLinkResponse struct {
-	Errors []GqlError `json:"errors"`
-	Data   struct {
-		UpsertLink PayIn `json:"upsertLink"`
-	} `json:"data"`
-}
-
-type UpsertCommentResponse struct {
-	Errors []GqlError `json:"errors"`
-	Data   struct {
-		UpsertComment PayIn `json:"upsertComment"`
-	} `json:"data"`
-}
-
-type Dupe struct {
-	Id        int       `json:"id,string"`
-	Url       string    `json:"url"`
-	Title     string    `json:"title"`
-	User      User      `json:"user"`
-	CreatedAt time.Time `json:"createdAt"`
-	Sats      int       `json:"sats"`
-	NComments int       `json:"ncomments"`
-}
-
-type DupesResponse struct {
-	Errors []GqlError `json:"errors"`
-	Data   struct {
-		Dupes []Dupe `json:"dupes"`
-	} `json:"data"`
-}
-
-type DupesError struct {
-	Url   string
-	Dupes []Dupe
-}
-
-func (e *DupesError) Error() string {
-	return fmt.Sprintf("found %d dupes for %s", len(e.Dupes), e.Url)
-}
-
-func (c *Client) Item(id int) (*Item, error) {
-	body := GqlBody{
+func (c *Client) Item(id int) (*t.Item, error) {
+	body := t.GqlBody{
 		Query: `
 		query item($id: ID!) {
 			item(id: $id) {
@@ -152,7 +38,7 @@ func (c *Client) Item(id int) (*Item, error) {
 	}
 	defer resp.Body.Close()
 
-	var respBody ItemResponse
+	var respBody t.ItemResponse
 	err = json.NewDecoder(resp.Body).Decode(&respBody)
 	if err != nil {
 		err = fmt.Errorf("error decoding item: %w", err)
@@ -166,12 +52,12 @@ func (c *Client) Item(id int) (*Item, error) {
 	return &respBody.Data.Item, nil
 }
 
-func (c *Client) Items(query *ItemsQuery) (*ItemsCursor, error) {
+func (c *Client) Items(query *t.ItemsQuery) (*t.ItemsCursor, error) {
 	if query == nil {
-		query = &ItemsQuery{}
+		query = &t.ItemsQuery{}
 	}
 
-	body := GqlBody{
+	body := t.GqlBody{
 		Query: `
 		query items($sub: String, $sort: String, $cursor: String, $type: String, $name: String, $when: String, $by: String, $limit: Limit) {
 			items(sub: $sub, sort: $sort, cursor: $cursor, type: $type, name: $name, when: $when, by: $by, limit: $limit) {
@@ -214,7 +100,7 @@ func (c *Client) Items(query *ItemsQuery) (*ItemsCursor, error) {
 	}
 	defer resp.Body.Close()
 
-	var respBody ItemsResponse
+	var respBody t.ItemsResponse
 	err = json.NewDecoder(resp.Body).Decode(&respBody)
 	if err != nil {
 		err = fmt.Errorf("error decoding items: %w", err)
@@ -229,7 +115,7 @@ func (c *Client) Items(query *ItemsQuery) (*ItemsCursor, error) {
 }
 
 func (c *Client) PostDiscussion(title string, text string, subNames []string) (int, error) {
-	body := GqlBody{
+	body := t.GqlBody{
 		Query: `
 		mutation upsertDiscussion($title: String!, $text: String, $subNames: [String!]) {
 			upsertDiscussion(title: $title, text: $text, subNames: $subNames) {
@@ -260,7 +146,7 @@ func (c *Client) PostDiscussion(title string, text string, subNames []string) (i
 	}
 	defer resp.Body.Close()
 
-	var respBody UpsertDiscussionResponse
+	var respBody t.UpsertDiscussionResponse
 	err = json.NewDecoder(resp.Body).Decode(&respBody)
 	if err != nil {
 		err = fmt.Errorf("error decoding upsertDiscussion: %w", err)
@@ -282,7 +168,7 @@ func (c *Client) PostDiscussion(title string, text string, subNames []string) (i
 }
 
 func (c *Client) PostLink(url string, title string, text string, subNames []string) (int, error) {
-	body := GqlBody{
+	body := t.GqlBody{
 		Query: `
 		mutation upsertLink($url: String!, $title: String!, $text: String, $subNames: [String!]) {
 			upsertLink(url: $url, title: $title, text: $text, subNames: $subNames) {
@@ -314,7 +200,7 @@ func (c *Client) PostLink(url string, title string, text string, subNames []stri
 	}
 	defer resp.Body.Close()
 
-	var respBody UpsertLinkResponse
+	var respBody t.UpsertLinkResponse
 	err = json.NewDecoder(resp.Body).Decode(&respBody)
 	if err != nil {
 		err = fmt.Errorf("error decoding upsertLink: %w", err)
@@ -336,7 +222,7 @@ func (c *Client) PostLink(url string, title string, text string, subNames []stri
 }
 
 func (c *Client) CreateComment(parentId int, text string) (int, error) {
-	body := GqlBody{
+	body := t.GqlBody{
 		Query: `
 		mutation upsertComment($parentId: ID!, $text: String!) {
 			upsertComment(parentId: $parentId, text: $text) {
@@ -366,7 +252,7 @@ func (c *Client) CreateComment(parentId int, text string) (int, error) {
 	}
 	defer resp.Body.Close()
 
-	var respBody UpsertCommentResponse
+	var respBody t.UpsertCommentResponse
 	err = json.NewDecoder(resp.Body).Decode(&respBody)
 	if err != nil {
 		err = fmt.Errorf("error decoding upsertComment: %w", err)
@@ -387,8 +273,8 @@ func (c *Client) CreateComment(parentId int, text string) (int, error) {
 	return payIn.PayerPrivates.Result.Id, nil
 }
 
-func (c *Client) Dupes(url string) (*[]Dupe, error) {
-	body := GqlBody{
+func (c *Client) Dupes(url string) (*[]t.Dupe, error) {
+	body := t.GqlBody{
 		Query: `
 		query Dupes($url: String!) {
 			dupes(url: $url) {
@@ -413,7 +299,7 @@ func (c *Client) Dupes(url string) (*[]Dupe, error) {
 	}
 	defer resp.Body.Close()
 
-	var respBody DupesResponse
+	var respBody t.DupesResponse
 	err = json.NewDecoder(resp.Body).Decode(&respBody)
 	if err != nil {
 		err = fmt.Errorf("error decoding dupes: %w", err)

@@ -1,4 +1,4 @@
-package sn
+package client
 
 import (
 	"bytes"
@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+
+	t "github.com/ekzyis/snappy/types"
 )
 
 type Client struct {
@@ -62,16 +64,7 @@ func WithMediaUrl(mediaUrl string) func(*Client) {
 	}
 }
 
-type GqlBody struct {
-	Query     string                 `json:"query"`
-	Variables map[string]interface{} `json:"variables,omitempty"`
-}
-
-type GqlError struct {
-	Message string `json:"message"`
-}
-
-func (c *Client) callApi(body GqlBody) (*http.Response, error) {
+func (c *Client) callApi(body t.GqlBody) (*http.Response, error) {
 	bodyJSON, err := json.Marshal(body)
 	if err != nil {
 		err = fmt.Errorf("error encoding SN payload: %w", err)
@@ -98,7 +91,7 @@ func (c *Client) callApi(body GqlBody) (*http.Response, error) {
 	return resp, nil
 }
 
-func (c *Client) checkForErrors(err []GqlError) error {
+func (c *Client) checkForErrors(err []t.GqlError) error {
 	if len(err) > 0 {
 		errMsg, marshalErr := json.Marshal(err)
 		if marshalErr != nil {
@@ -109,7 +102,7 @@ func (c *Client) checkForErrors(err []GqlError) error {
 	return nil
 }
 
-func (c *Client) checkForPayInErrors(payIn PayIn) error {
+func (c *Client) checkForPayInErrors(payIn t.PayIn) error {
 	privates := payIn.PayerPrivates
 	if privates.PayInFailureReason != "" {
 		return fmt.Errorf("mutation failed: %s", privates.PayInFailureReason)
