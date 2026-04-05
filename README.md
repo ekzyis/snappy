@@ -9,8 +9,30 @@
 
 ## How to use
 
+As library:
+
 ```
 $ go get github.com/ekzyis/snappy
+```
+
+```go
+import sn "github.com/ekzyis/snappy"
+```
+
+As command:
+
+```
+$ go install github.com/ekzyis/snappy/cmd/snappy
+$ snappy
+  ___ ___  ___ ____  ___  __ __
+ (_-</ _ \/ _ `/ _ \/ _ \/ // /
+/___/_//_/\_,_/ .__/ .__/\_, /
+             /_/  /_/   /___/
+
+Commands:
+  query    Query all items of a user.
+
+Usage: snappy query -author <username> [-type all|posts|comments]
 ```
 
 `SN_API_KEY` must be set in your environment for authenticated API access.
