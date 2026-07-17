@@ -18,6 +18,7 @@ func (c *Client) Item(id int) (*t.Item, error) {
 				url
 				text
 				sats
+				cost
 				createdAt
 				deletedAt
 				ncomments
@@ -69,6 +70,7 @@ func (c *Client) Items(query *t.ItemsQuery) (*t.ItemsCursor, error) {
 					url
 					text
 					sats
+					cost
 					createdAt
 					deletedAt
 					ncomments
