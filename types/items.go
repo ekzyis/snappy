@@ -20,6 +20,15 @@ type Item struct {
 	Comments  []Comment `json:"comments"`
 	NComments int       `json:"ncomments"`
 	User      User      `json:"user"`
+	SubName string `json:"subName"`
+	SubNames []string `json:"subNames"`
+	Sub Sub `json:"sub"`
+}
+
+type Sub struct {
+	Name      string    `json:"name"`
+	CreatedAt time.Time `json:"createdAt"`
+	User User `json:"user"`
 }
 
 type Comment struct {

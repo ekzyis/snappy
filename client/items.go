@@ -22,6 +22,16 @@ func (c *Client) Item(id int) (*t.Item, error) {
 				createdAt
 				deletedAt
 				ncomments
+				subName
+				subNames
+				sub {
+					name
+					createdAt
+					user {
+						id
+						name
+					}
+				}
 				user {
 					id
 					name
@@ -74,6 +84,16 @@ func (c *Client) Items(query *t.ItemsQuery) (*t.ItemsCursor, error) {
 					createdAt
 					deletedAt
 					ncomments
+					subName
+					subNames
+					sub {
+						name
+						createdAt
+						user {
+							id
+							name
+						}
+					}
 					user {
 						id
 						name
