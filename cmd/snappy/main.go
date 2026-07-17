@@ -18,9 +18,15 @@ var banner string
 func usage() {
 	fmt.Fprintf(os.Stderr, "%s\n\n", banner)
 	fmt.Fprintf(os.Stderr, "Usage:\n")
-	fmt.Fprintf(os.Stderr, "  %s <command> [-type all|posts|comments]\n", filepath.Base(os.Args[0]))
+	fmt.Fprintf(os.Stderr, "  %s <command> [options]\n\n", filepath.Base(os.Args[0]))
 	fmt.Fprintf(os.Stderr, "Commands:\n")
-	fmt.Fprintf(os.Stderr, "  %s query [-author <username>|-territory<territory>]  Query all items of a user or territory.\n\n", filepath.Base(os.Args[0]))
+	fmt.Fprintf(os.Stderr, "  %s query -author <username>      Query all items of a user.\n", filepath.Base(os.Args[0]))
+	fmt.Fprintf(os.Stderr, "  %s query -territory <territory>  Query all items of a territory.\n\n", filepath.Base(os.Args[0]))
+	fmt.Fprintf(os.Stderr, "Options:\n")
+	fmt.Fprintf(os.Stderr, "  -type string\n")
+	fmt.Fprintf(os.Stderr, "      Items to query: all, posts, or comments (default: posts)\n")
+	fmt.Fprintf(os.Stderr, "  -limit int\n")
+	fmt.Fprintf(os.Stderr, "      how many items to fetch (default: 100)\n")
 }
 
 func queryUsage(fs *flag.FlagSet) func() {
@@ -28,9 +34,13 @@ func queryUsage(fs *flag.FlagSet) func() {
 		fmt.Fprintf(os.Stderr, "%s\n\n", banner)
 		fmt.Fprintf(os.Stderr, "Query all items of a user or territory.\n\n")
 		fmt.Fprintf(os.Stderr, "Usage:\n")
-		fmt.Fprintf(os.Stderr, "  %s query -author <username> [-type all|posts|comments]\n", filepath.Base(os.Args[0]))
-		fmt.Fprintf(os.Stderr, "  %s query -territory <territory> [-type all|posts|comments]\n\n", filepath.Base(os.Args[0]))
-		fs.PrintDefaults()
+		fmt.Fprintf(os.Stderr, "  %s query -author <username> [options]\n", filepath.Base(os.Args[0]))
+		fmt.Fprintf(os.Stderr, "  %s query -territory <territory> [options]\n\n", filepath.Base(os.Args[0]))
+		fmt.Fprintf(os.Stderr, "Options:\n")
+		fmt.Fprintf(os.Stderr, "  -type string\n")
+		fmt.Fprintf(os.Stderr, "      Items to query: all, posts, or comments (default: posts)\n")
+		fmt.Fprintf(os.Stderr, "  -limit int\n")
+		fmt.Fprintf(os.Stderr, "      how many items to fetch (default: 100)\n")
 	}
 }
 
@@ -42,12 +52,14 @@ func runQuery(args []string) {
 	authorFlag := fs.String("author", "", "Stacker News username")
 	territoryFlag := fs.String("territory", "", "Stacker News territory")
 	typeFlag := fs.String("type", "posts", "Items to query: all, posts, or comments")
+	limitFlag := fs.Int("limit", 100, "")
 
 	fs.Parse(args)
 
 	author := *authorFlag
 	territory := *territoryFlag
 	type_ := *typeFlag
+	limit := *limitFlag
 	sort := "new"
 
 	if author == "" && territory == "" {
@@ -79,11 +91,13 @@ func runQuery(args []string) {
 
 	client := sn.NewClient()
 	var (
-		posts   []sn.Item
-		cursor  string
-		hasMore = true
-		limit   = 100
-		pageNum = 1
+		posts     []sn.Item
+		cursor    string
+		hasMore   = true
+		// fetch max 100 items at once
+		pageLimit = min(limit, 100)
+		count     = 0
+		pageNum   = 1
 	)
 	for hasMore {
 		fmt.Fprintf(progress, "Fetching page %d...\n", pageNum)
@@ -95,7 +109,8 @@ func runQuery(args []string) {
 			By:     "new",
 			When:   "forever",
 			Cursor: cursor,
-			Limit:  limit,
+			// fetch max as many items as we still need
+			Limit:  min(limit-count, pageLimit),
 		}
 		page, err := client.Items(q)
 		if err != nil {
@@ -103,9 +118,13 @@ func runQuery(args []string) {
 			os.Exit(1)
 		}
 		posts = append(posts, page.Items...)
+		count = len(posts)
 		cursor = page.Cursor
 		hasMore = cursor != ""
 		pageNum++
+		if count >= limit {
+			break
+		}
 	}
 
 	fmt.Fprintln(progress, "Done.")
