@@ -18,15 +18,17 @@ var banner string
 func usage() {
 	fmt.Fprintf(os.Stderr, "%s\n\n", banner)
 	fmt.Fprintf(os.Stderr, "Commands:\n")
-	fmt.Fprintf(os.Stderr, "  query    Query all items of a user.\n\n")
+	fmt.Fprintf(os.Stderr, "  query    Query all items of a user or territory.\n\n")
 	fmt.Fprintf(os.Stderr, "Usage: %s query -author <username> [-type all|posts|comments]\n", filepath.Base(os.Args[0]))
+	fmt.Fprintf(os.Stderr, "Usage: %s query -territory <territory> [-type all|posts|comments]\n\n", filepath.Base(os.Args[0]))
 }
 
 func queryUsage(fs *flag.FlagSet) func() {
 	return func() {
 		fmt.Fprintf(os.Stderr, "%s\n\n", banner)
-		fmt.Fprintf(os.Stderr, "Query all items of a user.\n\n")
-		fmt.Fprintf(os.Stderr, "Usage: %s query -author <username> [-type all|posts|comments]\n\n", filepath.Base(os.Args[0]))
+		fmt.Fprintf(os.Stderr, "Query all items of a user or territory.\n\n")
+		fmt.Fprintf(os.Stderr, "Usage: %s query -author <username> [-type all|posts|comments]\n", filepath.Base(os.Args[0]))
+		fmt.Fprintf(os.Stderr, "Usage: %s query -territory <territory> [-type all|posts|comments]\n\n", filepath.Base(os.Args[0]))
 		fs.PrintDefaults()
 	}
 }
@@ -37,18 +39,32 @@ func runQuery(args []string) {
 	fs.Usage = queryUsage(fs)
 
 	authorFlag := fs.String("author", "", "Stacker News username")
+	territoryFlag := fs.String("territory", "", "Stacker News territory")
 	typeFlag := fs.String("type", "posts", "Items to query: all, posts, or comments")
 
 	fs.Parse(args)
 
 	author := *authorFlag
+	territory := *territoryFlag
 	type_ := *typeFlag
+	sort := "new"
 
-	if author == "" {
-		fmt.Fprintln(os.Stderr, "error: -author is required")
+	if author == "" && territory == "" {
+		fmt.Fprintln(os.Stderr, "error: -author or -territory is required")
 		fmt.Fprintln(os.Stderr)
 		fs.Usage()
 		os.Exit(2)
+	}
+	if author != "" && territory != "" {
+		fmt.Fprintln(os.Stderr, "error: only one of -author and -territory is allowed")
+		fmt.Fprintln(os.Stderr)
+		fs.Usage()
+		os.Exit(2)
+	}
+	if author != "" {
+		// must use sort:user for API reasons, this is also why -author and
+		// -territory isn't supported
+		sort = "user"
 	}
 	if type_ != "all" && type_ != "posts" && type_ != "comments" {
 		fmt.Fprintln(os.Stderr, "error: -type must be all, posts, or comments")
@@ -71,7 +87,8 @@ func runQuery(args []string) {
 	for hasMore {
 		fmt.Fprintf(progress, "Fetching page %d...\n", pageNum)
 		q := &sn.ItemsQuery{
-			Sort:   "user",
+			Sort:   sort,
+			Sub:    territory,
 			Name:   author,
 			Type:   type_,
 			By:     "new",
