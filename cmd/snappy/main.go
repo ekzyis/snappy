@@ -17,18 +17,19 @@ var banner string
 
 func usage() {
 	fmt.Fprintf(os.Stderr, "%s\n\n", banner)
+	fmt.Fprintf(os.Stderr, "Usage:\n")
+	fmt.Fprintf(os.Stderr, "  %s <command> [-type all|posts|comments]\n", filepath.Base(os.Args[0]))
 	fmt.Fprintf(os.Stderr, "Commands:\n")
-	fmt.Fprintf(os.Stderr, "  query    Query all items of a user or territory.\n\n")
-	fmt.Fprintf(os.Stderr, "Usage: %s query -author <username> [-type all|posts|comments]\n", filepath.Base(os.Args[0]))
-	fmt.Fprintf(os.Stderr, "Usage: %s query -territory <territory> [-type all|posts|comments]\n\n", filepath.Base(os.Args[0]))
+	fmt.Fprintf(os.Stderr, "  %s query [-author <username>|-territory<territory>]  Query all items of a user or territory.\n\n", filepath.Base(os.Args[0]))
 }
 
 func queryUsage(fs *flag.FlagSet) func() {
 	return func() {
 		fmt.Fprintf(os.Stderr, "%s\n\n", banner)
 		fmt.Fprintf(os.Stderr, "Query all items of a user or territory.\n\n")
-		fmt.Fprintf(os.Stderr, "Usage: %s query -author <username> [-type all|posts|comments]\n", filepath.Base(os.Args[0]))
-		fmt.Fprintf(os.Stderr, "Usage: %s query -territory <territory> [-type all|posts|comments]\n\n", filepath.Base(os.Args[0]))
+		fmt.Fprintf(os.Stderr, "Usage:\n")
+		fmt.Fprintf(os.Stderr, "  %s query -author <username> [-type all|posts|comments]\n", filepath.Base(os.Args[0]))
+		fmt.Fprintf(os.Stderr, "  %s query -territory <territory> [-type all|posts|comments]\n\n", filepath.Base(os.Args[0]))
 		fs.PrintDefaults()
 	}
 }
