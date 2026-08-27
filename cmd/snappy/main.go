@@ -21,7 +21,8 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "  %s <command> [options]\n\n", filepath.Base(os.Args[0]))
 	fmt.Fprintf(os.Stderr, "Commands:\n")
 	fmt.Fprintf(os.Stderr, "  %s query -author <username>      Query all items of a user.\n", filepath.Base(os.Args[0]))
-	fmt.Fprintf(os.Stderr, "  %s query -territory <territory>  Query all items of a territory.\n\n", filepath.Base(os.Args[0]))
+	fmt.Fprintf(os.Stderr, "  %s query -territory <territory>  Query all items of a territory.\n", filepath.Base(os.Args[0]))
+	fmt.Fprintf(os.Stderr, "  %s query -item <id>              Query a single item by id.\n\n", filepath.Base(os.Args[0]))
 	fmt.Fprintf(os.Stderr, "Options:\n")
 	fmt.Fprintf(os.Stderr, "  -type string\n")
 	fmt.Fprintf(os.Stderr, "      Items to query: all, posts, or comments (default: posts)\n")
@@ -32,10 +33,11 @@ func usage() {
 func queryUsage(fs *flag.FlagSet) func() {
 	return func() {
 		fmt.Fprintf(os.Stderr, "%s\n\n", banner)
-		fmt.Fprintf(os.Stderr, "Query all items of a user or territory.\n\n")
+		fmt.Fprintf(os.Stderr, "Query a single item or items of a user or territory.\n\n")
 		fmt.Fprintf(os.Stderr, "Usage:\n")
 		fmt.Fprintf(os.Stderr, "  %s query -author <username> [options]\n", filepath.Base(os.Args[0]))
-		fmt.Fprintf(os.Stderr, "  %s query -territory <territory> [options]\n\n", filepath.Base(os.Args[0]))
+		fmt.Fprintf(os.Stderr, "  %s query -territory <territory> [options]\n", filepath.Base(os.Args[0]))
+		fmt.Fprintf(os.Stderr, "  %s query -item <id>\n\n", filepath.Base(os.Args[0]))
 		fmt.Fprintf(os.Stderr, "Options:\n")
 		fmt.Fprintf(os.Stderr, "  -type string\n")
 		fmt.Fprintf(os.Stderr, "      Items to query: all, posts, or comments (default: posts)\n")
@@ -51,6 +53,7 @@ func runQuery(args []string) {
 
 	authorFlag := fs.String("author", "", "Stacker News username")
 	territoryFlag := fs.String("territory", "", "Stacker News territory")
+	itemFlag := fs.Int("item", 0, "Stacker News item id")
 	typeFlag := fs.String("type", "posts", "Items to query: all, posts, or comments")
 	limitFlag := fs.Int("limit", 100, "")
 
@@ -58,9 +61,22 @@ func runQuery(args []string) {
 
 	author := *authorFlag
 	territory := *territoryFlag
+	item := *itemFlag
 	type_ := *typeFlag
 	limit := *limitFlag
 	sort := "new"
+
+	// TODO: I wanted to refactor this to check exclusive arguments in one place, but Golang does not
+	// have an XOR operator ...
+	if item != 0 {
+		if author != "" || territory != "" {
+			fmt.Fprintf(os.Stderr, "error: only one of -author, -territory and -item is allowed\n\n")
+			fs.Usage()
+			os.Exit(2)
+		}
+		runQueryItem(item)
+		return
+	}
 
 	if author == "" && territory == "" {
 		fmt.Fprint(os.Stderr, "error: -author or -territory is required\n\n")
@@ -129,6 +145,29 @@ func runQuery(args []string) {
 	enc := json.NewEncoder(os.Stdout)
 	enc.SetIndent("", "  ")
 	if err := enc.Encode(posts); err != nil {
+		fmt.Fprintf(os.Stderr, "error: encode JSON: %v\n", err)
+		os.Exit(1)
+	}
+}
+
+func runQueryItem(id int) {
+	progress, close := openTTY()
+	defer close()
+
+	fmt.Fprintf(progress, "Fetching item %d...\n", id)
+
+	client := sn.NewClient()
+	item, err := client.Item(id)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: Item: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Fprintln(progress, "Done.")
+
+	enc := json.NewEncoder(os.Stdout)
+	enc.SetIndent("", "  ")
+	if err := enc.Encode(item); err != nil {
 		fmt.Fprintf(os.Stderr, "error: encode JSON: %v\n", err)
 		os.Exit(1)
 	}
