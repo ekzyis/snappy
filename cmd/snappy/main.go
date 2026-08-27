@@ -63,14 +63,12 @@ func runQuery(args []string) {
 	sort := "new"
 
 	if author == "" && territory == "" {
-		fmt.Fprintln(os.Stderr, "error: -author or -territory is required")
-		fmt.Fprintln(os.Stderr)
+		fmt.Fprint(os.Stderr, "error: -author or -territory is required\n\n")
 		fs.Usage()
 		os.Exit(2)
 	}
 	if author != "" && territory != "" {
-		fmt.Fprintln(os.Stderr, "error: only one of -author and -territory is allowed")
-		fmt.Fprintln(os.Stderr)
+		fmt.Fprint(os.Stderr, "error: only one of -author and -territory is allowed\n\n")
 		fs.Usage()
 		os.Exit(2)
 	}
@@ -80,8 +78,7 @@ func runQuery(args []string) {
 		sort = "user"
 	}
 	if type_ != "all" && type_ != "posts" && type_ != "comments" {
-		fmt.Fprintln(os.Stderr, "error: -type must be all, posts, or comments")
-		fmt.Fprintln(os.Stderr)
+		fmt.Fprint(os.Stderr, "error: -type must be all, posts, or comments\n\n")
 		fs.Usage()
 		os.Exit(2)
 	}
