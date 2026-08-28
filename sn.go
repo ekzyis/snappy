@@ -10,6 +10,7 @@ type Client = client.Client
 var (
 	NewClient    = client.NewClient
 	WithApiKey   = client.WithApiKey
+	WithNsec     = client.WithNsec
 	WithBaseUrl  = client.WithBaseUrl
 	WithMediaUrl = client.WithMediaUrl
 )
