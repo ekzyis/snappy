@@ -1,11 +1,9 @@
 # snappy
 
-<p align="center">
-<img src="https://stacker.news/favicon.png" width="64" height="64" />
-<img src="https://go.dev/blog/go-brand/Go-Logo/PNG/Go-Logo_Blue.png" width="64" height="64" />
-</p>
+<img src="https://upload.wikimedia.org/wikipedia/en/0/0c/Schnappi.png" width="128" height="128" />
 
-<p align="center">A Go client for the <a href="https://stacker.news" target="_blank">Stacker News</a> GraphQL API</p>
+The Go library that powers [@hn](https://stacker.news/hn), [@nitter](https://stacker.news/nitter)
+and [@ctfbot_](https://stacker.news/ctfbot_) on [Stacker News](https://stacker.news/).
 
 ## How to use
 
@@ -29,10 +27,19 @@ $ snappy
 /___/_//_/\_,_/ .__/ .__/\_, /
              /_/  /_/   /___/
 
-Commands:
-  query    Query all items of a user.
+Usage:
+  snappy <command> [options]
 
-Usage: snappy query -author <username> [-type all|posts|comments]
+Commands:
+  snappy query -author <username>      Query all items of a user.
+  snappy query -territory <territory>  Query all items of a territory.
+  snappy query -item <id>              Query a single item by id.
+
+Options:
+  -type string
+      Items to query: all, posts, or comments (default: posts)
+  -limit int
+      how many items to fetch (default: 100)
 ```
 
 `SN_API_KEY` must be set in your environment for authenticated API access.
