@@ -16,6 +16,7 @@ func (c *Client) Me() (*t.User, error) {
 				name
 				privates {
 					sats
+					credits
 				}
 			}
 		}`,

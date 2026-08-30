@@ -7,7 +7,8 @@ type User struct {
 }
 
 type UserPrivates struct {
-	Sats int `json:"sats"`
+	Sats    int `json:"sats"`
+	Credits int `json:"credits"`
 }
 
 type MeResponse struct {
