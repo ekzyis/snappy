@@ -3,9 +3,10 @@ package types
 import "time"
 
 type Notification struct {
-	Id   int    `json:"id,string"`
-	Type string `json:"__typename"`
-	Item Item   `json:"item"`
+	Id         int    `json:"id,string"`
+	Type       string `json:"__typename"`
+	EarnedSats int    `json:"earnedSats"`
+	Item       Item   `json:"item"`
 }
 
 type NotificationsCursor struct {

@@ -14,6 +14,7 @@ type Item struct {
 	Url       string    `json:"url"`
 	Text      string    `json:"text"`
 	Sats      int       `json:"sats"`
+	Credits   int       `json:"credits"`
 	Cost      int       `json:"cost"`
 	CreatedAt time.Time `json:"createdAt"`
 	DeletedAt null.Time `json:"deletedAt"`

@@ -21,6 +21,8 @@ func (c *Client) Notifications() (*t.NotificationsCursor, error) {
 			deletedAt
 			title
 			text
+			sats
+			credits
 		}
 		query notifications {
 			notifications {
@@ -36,6 +38,13 @@ func (c *Client) Notifications() (*t.NotificationsCursor, error) {
 					}
 					... on Mention {
 						id
+						item {
+							...ItemFields
+						}
+					}
+					... on Votification {
+						id
+						earnedSats
 						item {
 							...ItemFields
 						}
@@ -79,6 +88,14 @@ func (c *Client) Replies() ([]t.Notification, error) {
 	return c.filterNotifications(
 		func(n t.Notification) bool {
 			return n.Type == "Reply"
+		},
+	)
+}
+
+func (c *Client) Zaps() ([]t.Notification, error) {
+	return c.filterNotifications(
+		func(n t.Notification) bool {
+			return n.Type == "Votification"
 		},
 	)
 }
