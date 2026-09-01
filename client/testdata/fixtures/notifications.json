@@ -1,0 +1,52 @@
+{
+  "lastChecked": "2024-01-02T03:04:05Z",
+  "cursor": "",
+  "notifications": [
+    {
+      "__typename": "Reply",
+      "id": "10",
+      "item": {
+        "id": "10",
+        "user": { "id": "2", "name": "satoshi" },
+        "parentId": 1,
+        "createdAt": "2024-01-02T03:04:05Z",
+        "deletedAt": null,
+        "title": null,
+        "text": "A reply to your post.",
+        "sats": 5,
+        "credits": 0
+      }
+    },
+    {
+      "__typename": "Mention",
+      "id": "11",
+      "item": {
+        "id": "11",
+        "user": { "id": "2", "name": "satoshi" },
+        "parentId": 1,
+        "createdAt": "2024-01-02T03:04:05Z",
+        "deletedAt": null,
+        "title": null,
+        "text": "A comment mentioning @stacker.",
+        "sats": 3,
+        "credits": 0
+      }
+    },
+    {
+      "__typename": "Votification",
+      "id": "12",
+      "earnedSats": 21,
+      "item": {
+        "id": "1",
+        "user": { "id": "1", "name": "stacker" },
+        "parentId": null,
+        "createdAt": "2024-01-02T03:04:05Z",
+        "deletedAt": null,
+        "title": "Example post one",
+        "text": "Body text for example post one.",
+        "sats": 100,
+        "credits": 0
+      }
+    }
+  ]
+}

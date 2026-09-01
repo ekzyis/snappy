@@ -1,0 +1,3 @@
+[submodule "stacker.news"]
+	path = stacker.news
+	url = git@github.com:stackernews/stacker.news

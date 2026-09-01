@@ -1,2 +1,5 @@
 .env
 /snappy
+/scripts/node_modules
+/scripts/package-lock.json
+/client/testdata/live

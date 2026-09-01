@@ -1,0 +1,1572 @@
+type Query {
+  _: Boolean
+  me: User
+  settings: User
+  user(id: ID, name: String): User
+  nameAvailable(name: String!): Boolean!
+  topUsers(cursor: String, when: String, from: String, to: String, by: String, limit: Limit! = 21): UsersNullable!
+  topCowboys(cursor: String): UsersNullable!
+  searchUsers(q: String!, limit: Limit! = 5, similarity: Float): [User!]!
+  userSuggestions(q: String, limit: Limit! = 5): [User!]!
+  hasNewNotes: Boolean!
+  mySubscribedUsers(cursor: String): Users!
+  myMutedUsers(cursor: String): Users!
+  items(sub: String, sort: String, type: String, cursor: String, name: String, when: String, from: String, to: String, by: String, limit: Limit! = 21): Items
+  item(id: ID!): Item
+  pageTitleAndUnshorted(url: String!): TitleUnshorted
+  dupes(url: String!): [Item!]
+  related(cursor: String, title: String, id: ID, minMatch: String, limit: Limit! = 21): Items
+  search(q: String, cursor: String, what: String, sort: String, when: String, from: String, to: String): Items
+  itemRepetition(parentId: ID): Int!
+  newComments(itemId: ID, after: Date): Comments!
+  messages: [Message!]!
+  message(id: ID!): Message!
+  numBolt11s: Int!
+  connectAddress: String!
+  wallets: [WalletOrTemplate!]!
+  walletSettings: WalletSettings!
+  walletLogs(walletId: ID, payInId: Int, externalTransactionId: Int, cursor: String): WalletLogs!
+  externalTransaction(id: Int!): ExternalTransaction
+  lnAuth(k1: String!): LnAuth!
+  notifications(cursor: String, inc: String): Notifications
+  invites: [Invite!]!
+  invite(id: ID!): Invite
+  sub(name: String): Sub
+  subLatestPost(name: String!): String
+  subs(subNames: [String!]): [Sub!]!
+  activeSubs: [Sub!]!
+  topSubs(cursor: String, when: String, from: String, to: String, by: String, limit: Limit! = 21): Subs
+  userSubs(name: String!, cursor: String, when: String, from: String, to: String, by: String, limit: Limit! = 21): Subs
+  mySubscribedSubs(cursor: String): Subs
+  subSuggestions(q: String!, limit: Limit! = 5): [Sub!]!
+  uploadFees(s3Keys: [Int]!): UploadFees!
+  registrationGrowth(when: String, from: String, to: String): [TimeData!]!
+  itemGrowth(when: String, from: String, to: String, sub: String, mine: Boolean): [TimeData!]!
+  spendingGrowth(when: String, from: String, to: String, sub: String, mine: Boolean): [TimeData!]!
+  spenderGrowth(when: String, from: String, to: String, sub: String, mine: Boolean): [TimeData!]!
+  stackingGrowth(when: String, from: String, to: String, sub: String, mine: Boolean): [TimeData!]!
+  stackerGrowth(when: String, from: String, to: String, sub: String, mine: Boolean): [TimeData!]!
+  growthTotals(when: String, from: String, to: String, sub: String, mine: Boolean): GrowthTotals
+  rewards(when: [String!]): [Rewards!]
+  meRewards(when: [String!]!): [MeRewards]
+  referrals(when: String, from: String, to: String): [TimeData!]!
+  price(fiatCurrency: String): Float
+  snl: Boolean!
+  blockHeight: Int!
+  chainFee: Float!
+  domain(subName: String!): Domain
+  payIn(id: Int!): PayIn
+  satistics(cursor: String, walletId: ID): Satistics
+  failedPayIns: [PayIn!]!
+  pendingExternalSendTransactions: [ExternalTransaction!]!
+}
+
+type Mutation {
+  _: Boolean
+  setName(name: String!): String
+  setSettings(settings: SettingsInput!): User
+  cropPhoto(photoId: ID!, cropData: CropData): String!
+  setPhoto(photoId: ID!): Int!
+  upsertBio(text: String!, sendProtocolId: Int): PayIn!
+  setWalkthrough(tipPopover: Boolean, upvotePopover: Boolean): Boolean
+  unlinkAuth(authType: String!): AuthMethods!
+  subscribeUserPosts(id: ID): User
+  subscribeUserComments(id: ID): User
+  toggleMute(id: ID): User
+  generateApiKey(id: ID!): String
+  deleteApiKey(id: ID!): User
+  bookmarkItem(id: ID): Item
+  pinItem(id: ID): Item
+  subscribeItem(id: ID): Item
+  deleteItem(id: ID): Item
+  upsertLink(id: ID, subNames: [String!], title: String!, url: String!, text: String, forward: [ItemForwardInput], hash: String, hmac: String, sendProtocolId: Int): PayIn!
+  upsertDiscussion(id: ID, subNames: [String!], title: String!, text: String, forward: [ItemForwardInput], hash: String, hmac: String, sendProtocolId: Int): PayIn!
+  upsertBounty(id: ID, subNames: [String!], title: String!, text: String, bounty: Int, forward: [ItemForwardInput], hash: String, hmac: String, sendProtocolId: Int): PayIn!
+  upsertJob(id: ID, subNames: [String!], title: String!, company: String!, location: String, remote: Boolean, text: String!, url: String!, status: String, logo: Int, sendProtocolId: Int): PayIn!
+  upsertPoll(id: ID, subNames: [String!], title: String!, text: String, options: [String!]!, forward: [ItemForwardInput], pollExpiresAt: Date, randPollOptions: Boolean, hash: String, hmac: String, sendProtocolId: Int): PayIn!
+  updateNoteId(id: ID!, noteId: String!): Item!
+  upsertComment(id: ID, text: String!, parentId: ID, hash: String, hmac: String, useFreebie: Boolean, sendProtocolId: Int): PayIn!
+  act(id: ID!, sats: Int, act: String, hasSendWallet: Boolean, sendProtocolId: Int): PayIn!
+  payBounty(id: ID!, sendProtocolId: Int): PayIn!
+  pollVote(id: ID!, sendProtocolId: Int): PayIn!
+  updateCommentsViewAt(id: ID!, meCommentsViewedAt: Date!): Date
+  createMessage(text: String!): Message!
+  deleteMessage(id: ID!): Boolean!
+  createWithdrawl(invoice: String!, maxFee: Int!): PayIn!
+  createWalletInvoice(walletId: ID!, amount: Int!, description: String, proxyReceive: Boolean): Int!
+  createExternalSend(input: ExternalSendCreateInput!): Int!
+  reportExternalSendObservation(input: ExternalSendObservationInput!): Boolean!
+  sendToLnAddr(addr: String!, amount: Int!, maxFee: Int!, comment: String, identifier: Boolean, name: String, email: String): PayIn!
+  dropBolt11(hash: String!): Boolean
+  buyCredits(credits: Int!, sendProtocolId: Int): PayIn!
+  testWalletRecvProtocol(config: WalletRecvProtocolTestInput!): Boolean!
+  createEmbeddedSparkWallet(input: EmbeddedSparkWalletInput!): Wallet!
+  deleteWallet(id: ID!): Boolean
+  saveWalletProtocols(walletId: ID, templateName: ID, upserts: [WalletProtocolUpsertInput!]!, removeIds: [ID!]!): Wallet
+  updateWalletEncryption(keyHash: String!, wallets: [WalletEncryptionUpdate!]!): Boolean
+  updateKeyHash(keyHash: String!): Boolean
+  resetWallets(newKeyHash: String!): Boolean
+  disablePassphraseExport: Boolean
+  setWalletSettings(settings: WalletSettingsInput!): WalletSettings!
+  setWalletPriorities(priorities: [WalletPriorityUpdate!]!): Boolean
+  addWalletLog(protocolId: Int, level: WalletLogLevel!, message: String!, timestamp: Date!, payInId: Int, externalTransactionId: Int, updateStatus: Boolean): Boolean
+  deleteWalletLogs(walletId: ID): Boolean
+  createAuth: LnAuth!
+  savePushSubscription(endpoint: String!, p256dh: String!, auth: String!, oldEndpoint: String): PushSubscription
+  deletePushSubscription(endpoint: String!): PushSubscription
+  createInvite(id: String, gift: Int!, limit: Int!, description: String): Invite
+  revokeInvite(id: ID!): Invite
+  upsertSub(oldName: String, name: String!, desc: String, baseCost: Int!, replyCost: Int!, postsSatsFilter: Int, postTypes: [String!]!, billingType: String!, billingAutoRenew: Boolean!, sendProtocolId: Int, nsfw: Boolean!): PayIn!
+  paySub(name: String!, sendProtocolId: Int): PayIn!
+  toggleMuteSub(name: String!): Boolean!
+  toggleSubSubscription(name: String!): Boolean!
+  transferTerritory(subName: String!, userName: String!): Sub
+  unarchiveTerritory(name: String!, desc: String, baseCost: Int!, replyCost: Int!, postsSatsFilter: Int, postTypes: [String!]!, billingType: String!, billingAutoRenew: Boolean!, sendProtocolId: Int, nsfw: Boolean!): PayIn!
+  upsertSubBranding(subName: String!, branding: SubBrandingInput!): Sub!
+  getSignedPOST(type: String!, size: Int!, width: Int!, height: Int!, avatar: Boolean, subName: String): SignedPost!
+  donateToRewards(sats: Int!, sendProtocolId: Int): PayIn!
+  onAirToggle: Boolean!
+  setDomain(subName: String!, domainName: String): Sub!
+  retryPayIn(payInId: Int!, sendProtocolId: Int): PayIn!
+  cancelPayInBolt11(hash: String!, hmac: String, userCancel: Boolean): PayIn
+}
+
+type Subscription {
+  _: Boolean
+}
+
+scalar JSONObject
+
+scalar Date
+
+scalar Limit
+
+scalar BigInt
+
+type UsersNullable {
+  cursor: String
+  users: [User]!
+}
+
+type Users {
+  cursor: String
+  users: [User!]!
+}
+
+input CropData {
+  x: Float!
+  y: Float!
+  width: Float!
+  height: Float!
+  originalWidth: Int!
+  originalHeight: Int!
+  scale: Float!
+}
+
+type User {
+  id: ID!
+  createdAt: Date!
+  name: String!
+  nitems(when: String, from: String, to: String): Int!
+  nterritories(when: String, from: String, to: String): Int!
+  bio: Item
+  bioId: Int
+  photoId: Int
+  since: Int
+
+  """this is only returned when we sort stackers by value"""
+  proportion: Float
+  optional: UserOptional!
+  privates: UserPrivates
+  meMute: Boolean!
+  meSubscriptionPosts: Boolean!
+  meSubscriptionComments: Boolean!
+}
+
+input SettingsInput {
+  autoDropBolt11s: Boolean!
+  noReferralLinks: Boolean!
+  fiatCurrency: String!
+  postsSatsFilter: Int
+  commentsSatsFilter: Int
+  hideBookmarks: Boolean!
+  hideCowboyHat: Boolean!
+  hideGithub: Boolean!
+  hideNostr: Boolean!
+  hideTwitter: Boolean!
+  hideFromTopUsers: Boolean!
+  hideInvoiceDesc: Boolean!
+  imgproxyOnly: Boolean!
+  showImagesAndVideos: Boolean!
+  nostrCrossposting: Boolean!
+  nostrPubkey: String
+  nostrRelays: [String!]
+  noteAllDescendants: Boolean!
+  noteCowboyHat: Boolean!
+  noteDeposits: Boolean!
+  noteWithdrawals: Boolean!
+  noteEarning: Boolean!
+  noteForwardedSats: Boolean!
+  noteInvites: Boolean!
+  noteItemSats: Boolean!
+  noteMentions: Boolean!
+  noteItemMentions: Boolean!
+  nsfwMode: Boolean!
+  tipDefault: Int!
+  tipRandomMin: Int
+  tipRandomMax: Int
+  turboTipping: Boolean!
+  zapUndos: Int
+}
+
+type AuthMethods {
+  lightning: Boolean!
+  nostr: Boolean!
+  github: Boolean!
+  twitter: Boolean!
+  email: Boolean!
+  apiKey: Boolean
+}
+
+type UserPrivates {
+  """extremely sensitive"""
+  sats: Int!
+  credits: Int!
+  authMethods: AuthMethods!
+  freeCommentCount: Int!
+  freeCommentsLeft: Int!
+  hasSendWallet: Boolean!
+  hasRecvWallet: Boolean!
+
+  """only relevant to user"""
+  tipPopover: Boolean!
+  upvotePopover: Boolean!
+  hasInvites: Boolean!
+  apiKeyEnabled: Boolean!
+  showPassphrase: Boolean!
+  diagnostics: Boolean! @deprecated(reason: "Compatibility shim")
+
+  """mirrors SettingsInput"""
+  autoDropBolt11s: Boolean!
+  noReferralLinks: Boolean!
+  fiatCurrency: String!
+  postsSatsFilter: Int
+  commentsSatsFilter: Int
+  hideBookmarks: Boolean!
+  hideCowboyHat: Boolean!
+  hideGithub: Boolean!
+  hideNostr: Boolean!
+  hideTwitter: Boolean!
+  hideFromTopUsers: Boolean!
+  hideInvoiceDesc: Boolean!
+  imgproxyOnly: Boolean!
+  showImagesAndVideos: Boolean!
+  nostrCrossposting: Boolean!
+  nostrPubkey: String
+  nostrRelays: [String!]
+  noteAllDescendants: Boolean!
+  noteCowboyHat: Boolean!
+  noteDeposits: Boolean!
+  noteWithdrawals: Boolean!
+  noteEarning: Boolean!
+  noteForwardedSats: Boolean!
+  noteInvites: Boolean!
+  noteItemSats: Boolean!
+  noteMentions: Boolean!
+  noteItemMentions: Boolean!
+  nsfwMode: Boolean!
+  tipDefault: Int!
+  tipRandom: Boolean!
+  tipRandomMin: Int
+  tipRandomMax: Int
+  turboTipping: Boolean!
+  zapUndos: Int
+  autoWithdrawThreshold: Int
+  vaultKeyHash: String
+  vaultKeyHashUpdatedAt: Date
+  walletsUpdatedAt: Date
+}
+
+type UserOptional {
+  """conditionally private"""
+  stacked(when: String, from: String, to: String): Int
+  spent(when: String, from: String, to: String): Int
+  referrals(when: String, from: String, to: String): Int
+  streak: Int
+  gunStreak: Int
+  horseStreak: Int
+  hasSendWallet: Boolean
+  hasRecvWallet: Boolean
+  maxStreak: Int
+  isContributor: Boolean
+  githubId: String
+  twitterId: String
+  nostrAuthPubkey: String
+}
+
+type NameValue {
+  name: String!
+  value: Float!
+}
+
+type TimeData {
+  time: Date!
+  data: [NameValue!]!
+}
+
+type TitleUnshorted {
+  title: String
+  unshorted: String
+}
+
+type PollOption {
+  id: ID
+  option: String!
+  count: Int!
+}
+
+type Poll {
+  count: Int!
+  options: [PollOption!]!
+  randPollOptions: Boolean
+  meVoted: Boolean!
+}
+
+type Items {
+  cursor: String
+  items: [Item!]!
+  pins: [Item!]
+  searchSuggestion: String
+}
+
+type Comments {
+  cursor: String
+  comments: [Item!]!
+}
+
+type ItemAct {
+  id: ID!
+  sats: Int!
+  act: String!
+  path: String
+  payIn: PayIn
+}
+
+type PollVote {
+  id: ID!
+  payIn: PayIn
+}
+
+type Item {
+  id: ID!
+  createdAt: Date!
+  paidAt: Date
+  updatedAt: Date!
+  deletedAt: Date
+  deleteScheduledAt: Date
+  reminderScheduledAt: Date
+  title: String
+  searchTitle: String
+  url: String
+  searchText: String
+  text: String
+  lexicalState: String
+  html: String
+  parentId: Int
+  parent: Item
+  root: Item
+  user: User!
+  userId: Int!
+  depth: Int
+  mine: Boolean!
+  boost: Int!
+  bounty: Int
+  bountyPaidTo: [Int]
+  noteId: String
+  sats: Int!
+  downSats: Int!
+  credits: Int!
+  commentSats: Int!
+  commentCredits: Int!
+  commentCost: Int!
+  commentBoost: Int!
+  commentDownSats: Int!
+  lastCommentAt: Date
+  upvotes: Int!
+  meSats: Int!
+  meCredits: Int!
+  meDontLikeSats: Int!
+  meBookmark: Boolean!
+  meSubscription: Boolean!
+  meForward: Boolean
+  freebie: Boolean!
+  netInvestment: Int!
+  freedFreebie: Boolean!
+  bio: Boolean!
+  ncomments: Int!
+  nDirectComments: Int!
+  comments(sort: String, cursor: String): Comments!
+  path: String
+  position: Int
+  prior: Int
+  isJob: Boolean!
+  pollCost: Int
+  poll: Poll
+  pollExpiresAt: Date
+  company: String
+  location: String
+  remote: Boolean
+  sub: Sub
+  subName: String
+  subs: [Sub!]
+  subNames: [String!]
+  status: String!
+  uploadId: Int
+  otsHash: String
+  parentOtsHash: String
+  forwards: [ItemForward]
+  imgproxyUrls: JSONObject
+  rel: String
+  apiKey: Boolean
+  cost: Int!
+  payIn: PayIn
+  meCommentsViewedAt: Date
+}
+
+input ItemForwardInput {
+  nym: String!
+  pct: Int!
+}
+
+type ItemForward {
+  id: ID!
+  created_at: Date!
+  updated_at: Date!
+  itemId: Int!
+  userId: Int!
+  user: User!
+  pct: Int!
+}
+
+type Message {
+  id: ID!
+  text: String!
+  user: User!
+}
+
+union WalletOrTemplate = Wallet | WalletTemplate
+
+union WalletActivityItem = PayIn | ExternalTransaction
+
+enum ExternalTransactionDirection {
+  SEND
+  RECEIVE
+}
+
+enum ExternalTransactionStatus {
+  PENDING
+  SETTLED
+  FAILED
+  EXPIRED
+  UNKNOWN
+}
+
+enum ExternalTransactionSourceType {
+  BOLT11
+  LN_ADDR
+}
+
+enum ExternalTransactionUnknownReason {
+  TRANSIENT_CHECK_FAILED
+  PERMISSION_REQUIRED
+  VERIFICATION_UNSUPPORTED
+  STATUS_UNAVAILABLE
+  RETENTION
+}
+
+type ExternalTransactionLud18 {
+  id: Int!
+  name: String
+  identifier: String
+  email: String
+  pubkey: String
+}
+
+type ExternalTransactionNostrNote {
+  id: Int!
+  note: JSONObject!
+}
+
+type ExternalTransactionComment {
+  id: Int!
+  comment: String!
+}
+
+type ExternalTransaction {
+  id: Int!
+  createdAt: Date!
+  direction: ExternalTransactionDirection!
+  status: ExternalTransactionStatus!
+  statusChangedAt: Date!
+  walletId: Int!
+  protocolId: Int!
+  bolt11: String
+  hash: String
+  preimage: String
+  amountMsats: BigInt
+  settledMsats: BigInt
+  invoiceExpiresAt: Date!
+  unknownReason: ExternalTransactionUnknownReason
+  sourceType: ExternalTransactionSourceType
+  sourceValue: String
+  providerRequestId: String
+  walletInfo: PayInWalletInfo
+  lud18Data: ExternalTransactionLud18
+  nostrNote: ExternalTransactionNostrNote
+  comment: ExternalTransactionComment
+}
+
+input ExternalSendCreateInput {
+  walletId: ID!
+  protocolId: Int!
+  bolt11: String!
+  sourceType: ExternalTransactionSourceType
+  sourceValue: String
+  maxFeeLimitMsats: BigInt
+  duplicateConfirmed: Boolean
+  lnurlVerifyUrl: String
+}
+
+enum ExternalSendObservationError {
+  TRANSIENT_CHECK_FAILED
+  PERMISSION_REQUIRED
+  VERIFICATION_UNSUPPORTED
+}
+
+enum ExternalSendObservationStatus {
+  PENDING
+  SETTLED
+  FAILED
+  UNKNOWN
+}
+
+input ExternalSendObservationInput {
+  id: Int!
+  status: ExternalSendObservationStatus!
+  preimage: String
+  msats: BigInt
+  settledAt: Date
+  actualFeeMsats: BigInt
+  detail: String
+  errorType: ExternalSendObservationError
+  providerRequestId: String
+}
+
+enum WalletStatus {
+  OK
+  WARNING
+  ERROR
+  DISABLED
+}
+
+enum WalletLogLevel {
+  OK
+  INFO
+  WARNING
+  ERROR
+  DEBUG
+}
+
+type Wallet {
+  id: ID!
+  name: String!
+  priority: Int!
+  template: WalletTemplate!
+  protocols: [WalletProtocol!]!
+  send: WalletStatus!
+  receive: WalletStatus!
+}
+
+type WalletTemplate {
+  name: ID!
+  protocols: [WalletProtocolTemplate!]!
+  send: WalletStatus!
+  receive: WalletStatus!
+}
+
+type WalletProtocol {
+  id: ID!
+  name: String!
+  send: Boolean!
+  enabled: Boolean!
+  config: WalletProtocolConfig!
+  status: WalletStatus!
+}
+
+type WalletProtocolTemplate {
+  id: ID!
+  name: String!
+  send: Boolean!
+}
+
+union WalletProtocolConfig = WalletSendNWC | WalletSendLNbits | WalletSendPhoenixd | WalletSendBlink | WalletSendWebLN | WalletSendLNC | WalletSendCLNRest | WalletSendClink | WalletSendSpark | WalletRecvNWC | WalletRecvLNbits | WalletRecvPhoenixd | WalletRecvBlink | WalletRecvLightningAddress | WalletRecvCLNRest | WalletRecvLNDGRPC | WalletRecvClink | WalletRecvSpark
+
+type WalletSettings {
+  proxyReceive: Boolean!
+  receiveCreditsBelowSats: Int!
+  sendCreditsBelowSats: Int!
+  autoWithdrawThreshold: Int
+  autoWithdrawMaxFeePercent: Float
+  autoWithdrawMaxFeeTotal: Int
+}
+
+input WalletSettingsInput {
+  proxyReceive: Boolean
+  receiveCreditsBelowSats: Int!
+  sendCreditsBelowSats: Int!
+  autoWithdrawThreshold: Int!
+  autoWithdrawMaxFeePercent: Float!
+  autoWithdrawMaxFeeTotal: Int!
+}
+
+type WalletSendNWC {
+  id: ID!
+  url: VaultEntry!
+}
+
+type WalletSendLNbits {
+  id: ID!
+  url: String!
+  apiKey: VaultEntry!
+}
+
+type WalletSendPhoenixd {
+  id: ID!
+  url: String!
+  apiKey: VaultEntry!
+}
+
+type WalletSendBlink {
+  id: ID!
+  currency: VaultEntry!
+  apiKey: VaultEntry!
+}
+
+type WalletSendWebLN {
+  id: ID!
+}
+
+type WalletSendLNC {
+  id: ID!
+  pairingPhrase: VaultEntry!
+  localKey: VaultEntry!
+  remoteKey: VaultEntry!
+  serverHost: VaultEntry!
+}
+
+type WalletSendCLNRest {
+  id: ID!
+  socket: String!
+  rune: VaultEntry!
+}
+
+type WalletSendClink {
+  id: ID!
+  ndebit: VaultEntry!
+  secretKey: VaultEntry!
+}
+
+type WalletSendSpark {
+  id: ID!
+  mnemonic: VaultEntry!
+}
+
+type WalletRecvNWC {
+  id: ID!
+  url: String!
+}
+
+type WalletRecvLNbits {
+  id: ID!
+  url: String!
+  apiKey: String!
+}
+
+type WalletRecvPhoenixd {
+  id: ID!
+  url: String!
+  apiKey: String!
+}
+
+type WalletRecvBlink {
+  id: ID!
+  currency: String!
+  apiKey: String!
+}
+
+type WalletRecvLightningAddress {
+  id: ID!
+  address: String!
+}
+
+type WalletRecvCLNRest {
+  id: ID!
+  socket: String!
+  rune: String!
+  cert: String
+}
+
+type WalletRecvLNDGRPC {
+  id: ID!
+  socket: String!
+  macaroon: String!
+  cert: String
+}
+
+type WalletRecvClink {
+  id: ID!
+  noffer: String!
+}
+
+type WalletRecvSpark {
+  id: ID!
+  identityPubkey: String!
+}
+
+input AutowithdrawSettings {
+  autoWithdrawThreshold: Int!
+  autoWithdrawMaxFeePercent: Float!
+  autoWithdrawMaxFeeTotal: Int!
+}
+
+input WalletEncryptionUpdate {
+  id: ID!
+  protocols: [WalletProtocolConfigInput!]!
+}
+
+input WalletPriorityUpdate {
+  id: ID!
+  priority: Int!
+}
+
+input WalletProtocolUpsertInput {
+  enabled: Boolean!
+  config: WalletProtocolConfigInput!
+}
+
+input WalletProtocolConfigInput @oneOf {
+  walletSendNWC: WalletSendNWCConfigInput
+  walletRecvNWC: WalletRecvNWCConfigInput
+  walletSendLNbits: WalletSendLNbitsConfigInput
+  walletRecvLNbits: WalletRecvLNbitsConfigInput
+  walletSendPhoenixd: WalletSendPhoenixdConfigInput
+  walletRecvPhoenixd: WalletRecvPhoenixdConfigInput
+  walletSendBlink: WalletSendBlinkConfigInput
+  walletRecvBlink: WalletRecvBlinkConfigInput
+  walletSendLNC: WalletSendLNCConfigInput
+  walletSendCLNRest: WalletSendCLNRestConfigInput
+  walletRecvCLNRest: WalletRecvCLNRestConfigInput
+  walletRecvLNDGRPC: WalletRecvLNDGRPCConfigInput
+  walletRecvLightningAddress: WalletRecvLightningAddressConfigInput
+  walletSendClink: WalletSendClinkConfigInput
+  walletRecvClink: WalletRecvClinkConfigInput
+  walletSendSpark: WalletSendSparkConfigInput
+  walletRecvSpark: WalletRecvSparkConfigInput
+  walletSendWebLN: Boolean
+}
+
+input WalletRecvProtocolTestInput @oneOf {
+  walletRecvNWC: WalletRecvNWCConfigInput
+  walletRecvLNbits: WalletRecvLNbitsConfigInput
+  walletRecvPhoenixd: WalletRecvPhoenixdConfigInput
+  walletRecvBlink: WalletRecvBlinkConfigInput
+  walletRecvLightningAddress: WalletRecvLightningAddressConfigInput
+  walletRecvCLNRest: WalletRecvCLNRestConfigInput
+  walletRecvLNDGRPC: WalletRecvLNDGRPCConfigInput
+  walletRecvClink: WalletRecvClinkConfigInput
+  walletRecvSpark: WalletRecvSparkConfigInput
+}
+
+input WalletSendNWCConfigInput {
+  url: VaultEntryInput!
+}
+
+input WalletRecvNWCConfigInput {
+  url: String!
+}
+
+input WalletSendLNbitsConfigInput {
+  url: String!
+  apiKey: VaultEntryInput!
+}
+
+input WalletRecvLNbitsConfigInput {
+  url: String!
+  apiKey: String!
+}
+
+input WalletSendPhoenixdConfigInput {
+  url: String!
+  apiKey: VaultEntryInput!
+}
+
+input WalletRecvPhoenixdConfigInput {
+  url: String!
+  apiKey: String!
+}
+
+input WalletSendBlinkConfigInput {
+  currency: VaultEntryInput!
+  apiKey: VaultEntryInput!
+}
+
+input WalletRecvBlinkConfigInput {
+  currency: String!
+  apiKey: String!
+}
+
+input WalletSendLNCConfigInput {
+  pairingPhrase: VaultEntryInput!
+  localKey: VaultEntryInput!
+  remoteKey: VaultEntryInput!
+  serverHost: VaultEntryInput!
+}
+
+input WalletSendCLNRestConfigInput {
+  socket: String!
+  rune: VaultEntryInput!
+}
+
+input WalletRecvCLNRestConfigInput {
+  socket: String!
+  rune: String!
+  cert: String
+}
+
+input WalletRecvLNDGRPCConfigInput {
+  socket: String!
+  macaroon: String!
+  cert: String
+}
+
+input WalletRecvLightningAddressConfigInput {
+  address: String!
+}
+
+input WalletSendClinkConfigInput {
+  ndebit: VaultEntryInput!
+  secretKey: VaultEntryInput!
+}
+
+input WalletRecvClinkConfigInput {
+  noffer: String!
+}
+
+input WalletSendSparkConfigInput {
+  mnemonic: VaultEntryInput!
+}
+
+input WalletRecvSparkConfigInput {
+  identityPubkey: String!
+}
+
+input EmbeddedSparkWalletInput {
+  mnemonic: VaultEntryInput!
+  identityPubkey: String!
+}
+
+type WalletLogs {
+  logs: [WalletLogEntry!]!
+  cursor: String
+}
+
+type WalletLogEntry {
+  id: ID!
+  createdAt: Date!
+  wallet: Wallet
+  protocol: WalletProtocol
+  level: WalletLogLevel!
+  message: String!
+  context: JSONObject
+  externalTransactionId: Int
+}
+
+type VaultEntry {
+  id: ID!
+  iv: String!
+  value: String!
+  createdAt: Date!
+  updatedAt: Date!
+}
+
+input VaultEntryInput {
+  iv: String!
+  value: String!
+  keyHash: String!
+}
+
+type LnAuth {
+  id: ID!
+  createdAt: Date!
+  k1: String!
+  pubkey: String
+  encodedUrl: String!
+}
+
+type Votification {
+  id: ID!
+  earnedSats: Int!
+  item: Item!
+  sortTime: Date!
+}
+
+type BountyPayment {
+  id: ID!
+  earnedSats: Int!
+  item: Item!
+  sortTime: Date!
+}
+
+enum BulletinIconType {
+  MAP
+}
+
+type Bulletinification {
+  id: ID!
+  bulletin: Bulletin
+  sortTime: Date!
+}
+
+type Bulletin {
+  title: String!
+  text: String
+  lexicalState: String
+  html: String
+  iconType: BulletinIconType
+}
+
+type ForwardedVotification {
+  id: ID!
+  earnedSats: Int!
+  item: Item!
+  sortTime: Date!
+}
+
+type FollowActivity {
+  id: ID!
+  item: Item!
+  sortTime: Date!
+}
+
+type Reply {
+  id: ID!
+  item: Item!
+  sortTime: Date!
+}
+
+type Mention {
+  id: ID!
+  mention: Boolean!
+  item: Item!
+  sortTime: Date!
+}
+
+type ItemMention {
+  id: ID!
+  item: Item!
+  sortTime: Date!
+}
+
+type Invitification {
+  id: ID!
+  invite: Invite!
+  sortTime: Date!
+}
+
+type PayInification {
+  id: ID!
+  payIn: PayIn!
+  earnedSats: Int!
+  sortTime: Date!
+  payInItem: Item
+}
+
+type ExternalReceiveNotification {
+  id: ID!
+  transaction: ExternalTransaction!
+  earnedSats: Int!
+  sortTime: Date!
+}
+
+type JobChanged {
+  id: ID!
+  item: Item!
+  sortTime: Date!
+}
+
+type EarnSources {
+  id: ID!
+  posts: Int!
+  comments: Int!
+  tipPosts: Int!
+  tipComments: Int!
+}
+
+type Earn {
+  id: ID!
+  earnedSats: Int!
+  minSortTime: Date!
+  sortTime: Date!
+  sources: EarnSources
+}
+
+type ReferralSources {
+  id: ID!
+  forever: Int!
+  oneDay: Int!
+}
+
+type ReferralReward {
+  id: ID!
+  earnedSats: Int!
+  sortTime: Date!
+  sources: ReferralSources
+}
+
+type Revenue {
+  id: ID!
+  earnedSats: Int!
+  sortTime: Date!
+  subName: String!
+}
+
+union ReferralSource = Item | Sub | User
+
+type Referral {
+  id: ID!
+  sortTime: Date!
+  source: ReferralSource
+}
+
+type SubStatus {
+  id: ID!
+  sub: Sub!
+  sortTime: Date!
+}
+
+type TerritoryPost {
+  id: ID!
+  item: Item!
+  sortTime: Date!
+}
+
+type TerritoryTransfer {
+  id: ID!
+  sub: Sub!
+  sortTime: Date!
+}
+
+type Reminder {
+  id: ID!
+  item: Item!
+  sortTime: Date!
+}
+
+type CowboyHat {
+  id: ID!
+  sortTime: Date!
+  days: Int
+}
+
+type NewHorse {
+  id: ID!
+  sortTime: Date!
+}
+
+type LostHorse {
+  id: ID!
+  sortTime: Date!
+}
+
+type NewGun {
+  id: ID!
+  sortTime: Date!
+}
+
+type LostGun {
+  id: ID!
+  sortTime: Date!
+}
+
+union Notification = Reply | Votification | BountyPayment | Mention | Invitification | Earn | JobChanged | Referral | FollowActivity | ForwardedVotification | Revenue | SubStatus | TerritoryPost | TerritoryTransfer | Reminder | ItemMention | PayInification | ReferralReward | CowboyHat | NewHorse | LostHorse | NewGun | LostGun | Bulletinification | ExternalReceiveNotification
+
+type Notifications {
+  lastChecked: Date
+  cursor: String
+  notifications: [Notification!]!
+}
+
+type PushSubscription {
+  id: ID!
+  userId: ID!
+  endpoint: String!
+  p256dh: String!
+  auth: String!
+}
+
+type Invite {
+  id: ID!
+  createdAt: Date!
+  gift: Int!
+  limit: Int
+  giftedCount: Int
+  full: Boolean!
+  user: User!
+  revoked: Boolean!
+  poor: Boolean!
+  description: String
+}
+
+type Subs {
+  cursor: String
+  subs: [Sub!]!
+}
+
+type Sub {
+  name: String!
+  createdAt: Date!
+  userId: Int!
+  user: User!
+  desc: String
+  lexicalState: String
+  html: String
+  updatedAt: Date!
+  postTypes: [String!]!
+  allowFreebies: Boolean!
+  billingCost: Int!
+  billingType: String!
+  billingAutoRenew: Boolean!
+  rankingType: String!
+  billedLastAt: Date!
+  billPaidUntil: Date
+  baseCost: Int!
+  replyCost: Int!
+  postsSatsFilter: Int!
+  status: String!
+  meMuteSub: Boolean!
+  nsfw: Boolean!
+  nitems(when: String, from: String, to: String): Int!
+  meSubscription: Boolean!
+  domain: Domain
+  branding: SubBranding
+  optional: SubOptional!
+}
+
+type SubOptional {
+  """conditionally private"""
+  stacked(when: String, from: String, to: String): Int
+  spent(when: String, from: String, to: String): Int
+  revenue(when: String, from: String, to: String): Int
+}
+
+type SubBranding {
+  subName: String!
+  primaryColor: String
+  secondaryColor: String
+  linkColor: String
+  logoId: Int
+  title: String
+  tagline: String
+  faviconId: Int
+}
+
+input SubBrandingInput {
+  primaryColor: String
+  secondaryColor: String
+  linkColor: String
+  logoId: Int
+  title: String
+  tagline: String
+  faviconId: Int
+}
+
+type UploadFees {
+  totalFees: Int!
+  totalFeesMsats: Int!
+  uploadFees: Int!
+  uploadFeesMsats: Int!
+  nUnpaid: Int!
+  bytesUnpaid: Int!
+  bytes24h: Int!
+}
+
+type SignedPost {
+  url: String!
+  fields: JSONObject!
+}
+
+type GrowthTotals {
+  spending: Float!
+  stacking: Float!
+  items: Int!
+  registrations: Int
+}
+
+type DonateResult {
+  sats: Int!
+}
+
+type Rewards {
+  total: Int!
+  time: Date!
+  sources: [NameValue!]!
+}
+
+type Reward {
+  type: String
+  rank: Int
+  sats: Int!
+  item: Item
+}
+
+type MeRewards {
+  total: Int!
+  rewards: [Reward!]
+}
+
+type Domain {
+  id: Int!
+  createdAt: Date!
+  updatedAt: Date!
+  domainName: String!
+  subName: String!
+  status: DomainStatus
+  records: DomainVerificationRecordMap
+  attempts: [DomainVerificationAttempt]
+  certificate: DomainCertificate
+}
+
+type DomainVerificationRecord {
+  id: Int!
+  createdAt: Date!
+  updatedAt: Date!
+  lastCheckedAt: Date
+  domainId: Int!
+  type: DomainRecordType
+  recordName: String!
+  recordValue: String!
+  status: RecordStatus
+  attempts: [DomainVerificationAttempt]
+}
+
+type DomainVerificationRecordMap {
+  CNAME: DomainVerificationRecord
+  SSL: DomainVerificationRecord
+}
+
+type DomainVerificationAttempt {
+  id: Int!
+  createdAt: Date!
+  updatedAt: Date!
+  domainId: Int!
+  verificationRecordId: Int
+  stage: DomainVerificationStage
+  status: RecordStatus
+  message: String
+}
+
+type DomainCertificate {
+  id: Int!
+  createdAt: Date!
+  updatedAt: Date!
+  domainId: Int!
+  certificateArn: String!
+  status: DomainCertificateStatus
+}
+
+enum DomainVerificationStage {
+  GENERAL
+  CNAME
+  ACM_REQUEST_CERTIFICATE
+  ACM_REQUEST_VALIDATION_VALUES
+  ACM_VALIDATION
+  ELB_ATTACH_CERTIFICATE
+  VERIFICATION_COMPLETE
+}
+
+enum DomainRecordType {
+  CNAME
+  SSL
+}
+
+enum DomainStatus {
+  PENDING
+  ACTIVE
+  HOLD
+  FAILED
+}
+
+enum RecordStatus {
+  PENDING
+  VERIFIED
+  FAILED
+}
+
+enum DomainCertificateStatus {
+  PENDING_VALIDATION
+  ISSUED
+  INACTIVE
+  EXPIRED
+  REVOKED
+  FAILED
+  VALIDATION_TIMED_OUT
+}
+
+type Satistics {
+  txs: [WalletActivityItem!]!
+  cursor: String
+}
+
+enum CustodialTokenType {
+  CREDITS
+  SATS
+}
+
+enum PayInType {
+  BUY_CREDITS
+  ITEM_CREATE
+  ITEM_UPDATE
+  ZAP
+  DOWN_ZAP
+  BOOST
+  DONATE
+  POLL_VOTE
+  INVITE_GIFT
+  TERRITORY_CREATE
+  TERRITORY_UPDATE
+  TERRITORY_BILLING
+  TERRITORY_UNARCHIVE
+  PROXY_PAYMENT
+  REWARDS
+  WITHDRAWAL
+  AUTO_WITHDRAWAL
+  MEDIA_UPLOAD
+  BOUNTY_PAYMENT
+  DEFUNCT_TERRITORY_DAILY_PAYOUT
+}
+
+enum PayInState {
+  PENDING_INVOICE_CREATION
+  PENDING_INVOICE_WRAP
+  PENDING_WITHDRAWAL
+  WITHDRAWAL_PAID
+  WITHDRAWAL_FAILED
+  PENDING
+  PENDING_HELD
+  HELD
+  PAID
+  FAILED
+  FORWARDING
+  FORWARDED
+  FAILED_FORWARD
+  CANCELLED
+}
+
+enum PayInFailureReason {
+  INVOICE_CREATION_FAILED
+  INVOICE_WRAPPING_FAILED_HIGH_PREDICTED_FEE
+  INVOICE_WRAPPING_FAILED_HIGH_PREDICTED_EXPIRY
+  INVOICE_WRAPPING_FAILED_UNKNOWN
+  INVOICE_FORWARDING_CLTV_DELTA_TOO_LOW
+  INVOICE_FORWARDING_FAILED
+  HELD_INVOICE_UNEXPECTED_ERROR
+  HELD_INVOICE_SETTLED_TOO_SLOW
+  WITHDRAWAL_FAILED
+  USER_CANCELLED
+  SYSTEM_CANCELLED
+  INVOICE_EXPIRED
+  EXECUTION_FAILED
+  UNKNOWN_FAILURE
+}
+
+type PayInBolt11Lud18 {
+  id: Int!
+  name: String
+  identifier: String
+  email: String
+  pubkey: String
+}
+
+type PayInBolt11NostrNote {
+  id: Int!
+  note: JSONObject!
+}
+
+type PayInBolt11Comment {
+  id: Int!
+  comment: String!
+}
+
+type PayInBolt11 {
+  id: Int!
+  payInId: Int!
+  hash: String!
+  preimage: String
+  hmac: String
+  bolt11: String!
+  description: String @deprecated(reason: "Compatibility shim; always null")
+  expiresAt: Date!
+  confirmedAt: Date
+  cancelledAt: Date
+  msatsRequested: BigInt!
+  msatsReceived: BigInt
+  lud18Data: PayInBolt11Lud18
+  nostrNote: PayInBolt11NostrNote
+  comment: PayInBolt11Comment
+}
+
+enum PayInWalletRole {
+  SEND
+  RECEIVE
+}
+
+type PayInWalletInfo {
+  walletId: ID!
+  walletName: String!
+  protocolId: Int!
+  protocolName: String!
+  role: PayInWalletRole!
+}
+
+type PayInCustodialToken {
+  id: Int!
+  payInId: Int!
+  mtokens: BigInt!
+  mtokensAfter: BigInt
+  custodialTokenType: CustodialTokenType!
+}
+
+type RefundCustodialToken {
+  id: Int!
+  payInId: Int!
+  mtokens: BigInt!
+  mtokensAfter: BigInt
+  custodialTokenType: CustodialTokenType!
+}
+
+union PayInResult = Item | ItemAct | PollVote | Sub
+
+type PayInPessimisticEnv {
+  id: Int!
+  payInId: Int!
+  args: JSONObject
+  error: String
+  result: JSONObject
+}
+
+type PayIn {
+  id: Int!
+  createdAt: Date!
+  updatedAt: Date!
+  mcost: BigInt!
+  isSend: Boolean!
+  payInBolt11Public: PayInBolt11Public
+  payOutBolt11Public: PayOutBolt11Public
+  payInType: PayInType!
+  payInState: PayInState!
+  payInStateChangedAt: Date!
+  genesisId: Int
+  successorId: Int
+  payerPrivates: PayerPrivates
+  payeePrivates: PayeePrivates
+  payOutCustodialTokens: [PayOutCustodialToken!]
+  item: Item
+  walletInfo: PayInWalletInfo
+}
+
+type PayOutBolt11Public {
+  msats: BigInt!
+}
+
+type PayInBolt11Public {
+  msats: BigInt!
+}
+
+type PayerPrivates {
+  userId: Int!
+  payInFailureReason: PayInFailureReason
+  retryCount: Int
+  payInBolt11: PayInBolt11
+  payInCustodialTokens: [PayInCustodialToken!]
+  refundCustodialTokens: [RefundCustodialToken!]
+  result: PayInResult
+  pessimisticEnv: PayInPessimisticEnv
+  invite: Invite
+  sub: Sub
+}
+
+type PayeePrivates {
+  payOutBolt11: PayOutBolt11
+}
+
+enum PayOutType {
+  TERRITORY_REVENUE
+  REWARDS_POOL
+  ROUTING_FEE
+  ROUTING_FEE_REFUND
+  PROXY_PAYMENT
+  ZAP
+  BOUNTY_PAYMENT
+  REWARD
+  INVITE_GIFT
+  WITHDRAWAL
+  SYSTEM_REVENUE
+  BUY_CREDITS
+  INVOICE_OVERPAY_SPILLOVER
+  DEFUNCT_REFERRAL_ACT
+  DEFUNCT_DELAYED_TERRITORY_REVENUE
+}
+
+enum WithdrawlStatus {
+  INSUFFICIENT_BALANCE
+  INVALID_PAYMENT
+  PATHFINDING_TIMEOUT
+  ROUTE_NOT_FOUND
+  CONFIRMED
+  UNKNOWN_FAILURE
+}
+
+type PayOutBolt11 {
+  id: Int!
+  userId: Int
+  payOutType: PayOutType!
+  status: WithdrawlStatus
+  msats: BigInt!
+  payInId: Int!
+  hash: String
+  preimage: String
+  bolt11: String
+  description: String @deprecated(reason: "Compatibility shim; always null")
+  expiresAt: Date!
+}
+
+type PayOutCustodialToken {
+  id: Int!
+  payInId: Int!
+  mtokens: BigInt!
+  privates: PayOutCustodialTokenPrivates
+  sometimesPrivates: PayOutCustodialTokenSometimesPrivates
+  custodialTokenType: CustodialTokenType!
+  payOutType: PayOutType!
+  payIn: PayIn!
+  sub: Sub
+}
+
+type PayOutCustodialTokenPrivates {
+  mtokensAfter: BigInt
+}
+
+type PayOutCustodialTokenSometimesPrivates {
+  user: User
+  userId: Int
+}

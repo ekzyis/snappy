@@ -1,0 +1,11 @@
+[
+  {
+    "id": "1",
+    "url": "https://stacker.news/items/1",
+    "title": "Example post one",
+    "user": { "name": "stacker" },
+    "createdAt": "2024-01-02T03:04:05Z",
+    "sats": 100,
+    "ncomments": 2
+  }
+]

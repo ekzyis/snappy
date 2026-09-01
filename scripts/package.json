@@ -1,0 +1,14 @@
+{
+  "name": "snappy-schema-tools",
+  "private": true,
+  "type": "module",
+  "description": "Dump the Stacker News GraphQL schema to SDL for Go tests.",
+  "scripts": {
+    "dump-schema": "node --import ./register.mjs dump-schema.mjs"
+  },
+  "dependencies": {
+    "@graphql-tools/schema": "^10.0.6",
+    "graphql": "^16.13.2",
+    "graphql-tag": "^2.12.6"
+  }
+}

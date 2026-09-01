@@ -46,6 +46,27 @@ Options:
 
 ## How to test
 
-1. Run SN
-2. Set `TEST_SN_BASE_URL` and `TEST_SN_API_KEY` in .env
-3. Run `go test ./...`
+```
+$ go test ./...
+```
+
+The tests run against an in-process mock GraphQL server. Every query the client sends is validated
+against Stacker News' real schema (`client/testdata/schema.graphql`), and the mock replies with the
+fixture for that operation from `client/testdata/fixtures/`. A request whose operation has no fixture
+fails the test.
+
+The fixtures are curated to represent the API shape with fixed, stable values; they are not verbatim
+API responses, so tests assert structure rather than exact values.
+
+Regenerate the schema after bumping the submodule:
+
+```
+$ make schema
+```
+
+Check the fixtures against the live API:
+
+```
+$ make fixtures
+```
+

@@ -1,134 +1,85 @@
 package client_test
 
 import (
-	"bufio"
-	"fmt"
-	"log"
-	"os"
-	"path/filepath"
-	"strings"
 	"testing"
-
-	sn "github.com/ekzyis/snappy"
-)
-
-var (
-	c = testClient()
 )
 
 func TestQueryItems(t *testing.T) {
-	var (
-		cursor *sn.ItemsCursor
-		err    error
-	)
+	c := newTestClient(t)
 
-	if cursor, err = c.Items(nil); err != nil {
-		t.Error(err)
-		return
+	cursor, err := c.Items(nil)
+	if err != nil {
+		t.Fatal(err)
 	}
-
 	if len(cursor.Items) == 0 {
-		t.Error("items cursor empty")
-		return
+		t.Fatal("items cursor empty")
+	}
+}
+
+func TestQueryItem(t *testing.T) {
+	c := newTestClient(t)
+
+	item, err := c.Item(1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if item.Id == 0 {
+		t.Fatal("item id missing")
+	}
+}
+
+func TestQueryDupes(t *testing.T) {
+	c := newTestClient(t)
+
+	dupes, err := c.Dupes("https://stacker.news")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(*dupes) == 0 {
+		t.Fatal("dupes empty")
+	}
+}
+
+func TestQueryMe(t *testing.T) {
+	c := newTestClient(t)
+
+	me, err := c.Me()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if me.Name == "" {
+		t.Fatal("me name missing")
+	}
+}
+
+func TestQueryNotifications(t *testing.T) {
+	c := newTestClient(t)
+
+	if _, err := c.Notifications(); err != nil {
+		t.Fatal(err)
 	}
 }
 
 func TestMutationCreateComment(t *testing.T) {
-	var (
-		parentId = 349
-		text     = "test comment"
-		err      error
-	)
+	c := newTestClient(t)
 
-	// TODO: return result, invoice, paymentMethod from CreateComment and run assertions on that
-	if _, err = c.CreateComment(parentId, text); err != nil {
-		t.Error(err)
-		return
+	if _, err := c.CreateComment(1, "test comment"); err != nil {
+		t.Fatal(err)
 	}
 }
 
 func TestMutationPostDiscussion(t *testing.T) {
-	var (
-		title    = "test discussion"
-		text     = "test discussion text"
-		subNames = []string{"bitcoin"}
-		err      error
-	)
+	c := newTestClient(t)
 
-	// TODO: return result, invoice, paymentMethod from CreateComment and run assertions on that
-	if _, err = c.PostDiscussion(title, text, subNames); err != nil {
-		t.Error(err)
-		return
+	if _, err := c.PostDiscussion("test discussion", "test discussion text", []string{"bitcoin"}); err != nil {
+		t.Fatal(err)
 	}
 }
 
 func TestMutationPostLink(t *testing.T) {
-	var (
-		url      = "https://stacker.news"
-		title    = "test link"
-		text     = "test link text"
-		subNames = []string{"bitcoin"}
-		err      error
-	)
+	c := newTestClient(t)
 
-	// TODO: return result, invoice, paymentMethod from CreateComment and run assertions on that
-	if _, err = c.PostLink(url, title, text, subNames); err != nil {
-		t.Error(err)
-		return
+	if _, err := c.PostLink("https://stacker.news", "test link", "test link text", []string{"bitcoin"}); err != nil {
+		t.Fatal(err)
 	}
-}
-
-func testClient() *sn.Client {
-	loadEnv()
-
-	baseUrl, set := os.LookupEnv("TEST_SN_BASE_URL")
-	if !set {
-		baseUrl = "http://localhost:3000"
-	}
-	log.Printf("baseUrl=%s\n", baseUrl)
-
-	apiKey, set := os.LookupEnv("TEST_SN_API_KEY")
-	if !set {
-		log.Fatalf("TEST_SN_API_KEY is not set")
-	}
-	log.Printf("apiKey=%s\n", apiKey)
-
-	return sn.NewClient(
-		sn.WithBaseUrl(baseUrl),
-		sn.WithApiKey(apiKey),
-	)
-}
-
-func loadEnv() {
-	var (
-		f   *os.File
-		s   *bufio.Scanner
-		err error
-	)
-
-	envPath := filepath.Join("..", ".env")
-	if f, err = os.Open(envPath); err != nil {
-		log.Fatalf("error opening %s: %v", envPath, err)
-	}
-	defer f.Close()
-
-	s = bufio.NewScanner(f)
-	s.Split(bufio.ScanLines)
-	for s.Scan() {
-		line := s.Text()
-		parts := strings.SplitN(line, "=", 2)
-
-		// Check if we have exactly 2 parts (key and value)
-		if len(parts) == 2 {
-			os.Setenv(parts[0], parts[1])
-		} else {
-			log.Fatalf(".env: invalid line: %s\n", line)
-		}
-	}
-
-	// Check for errors during scanning
-	if err = s.Err(); err != nil {
-		fmt.Println("error scanning .env:", err)
-	}
-
 }

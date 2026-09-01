@@ -1,0 +1,6 @@
+{
+  "url": "https://s3.example.invalid",
+  "fields": {
+    "key": "test-key"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "id": "1",
+  "parentId": null,
+  "title": "Example post one",
+  "url": "https://stacker.news/items/1",
+  "text": "Body text for example post one.",
+  "sats": 100,
+  "cost": 1,
+  "createdAt": "2024-01-02T03:04:05Z",
+  "deletedAt": null,
+  "ncomments": 2,
+  "subName": "bitcoin",
+  "subNames": ["bitcoin"],
+  "sub": {
+    "name": "bitcoin",
+    "createdAt": "2024-01-02T03:04:05Z",
+    "user": { "id": "1", "name": "stacker" }
+  },
+  "user": { "id": "1", "name": "stacker" }
+}
