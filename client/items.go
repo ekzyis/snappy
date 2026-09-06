@@ -295,6 +295,62 @@ func (c *Client) CreateComment(parentId int, text string) (int, error) {
 	return payIn.PayerPrivates.Result.Id, nil
 }
 
+func (c *Client) DeleteItem(id int) (*t.Item, error) {
+	body := t.GqlBody{
+		Query: `
+		mutation deleteItem($id: ID) {
+			deleteItem(id: $id) {
+				id
+				parentId
+				title
+				url
+				text
+				sats
+				cost
+				createdAt
+				deletedAt
+				ncomments
+				subName
+				subNames
+				sub {
+					name
+					createdAt
+					user {
+						id
+						name
+					}
+				}
+				user {
+					id
+					name
+				}
+			}
+		}`,
+		Variables: map[string]interface{}{
+			"id": id,
+		},
+	}
+
+	resp, err := c.callApi(body)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var respBody t.DeleteItemResponse
+	err = json.NewDecoder(resp.Body).Decode(&respBody)
+	if err != nil {
+		err = fmt.Errorf("error decoding deleteItem: %w", err)
+		return nil, err
+	}
+
+	err = c.checkForErrors(respBody.Errors)
+	if err != nil {
+		return nil, err
+	}
+	return &respBody.Data.DeleteItem, nil
+}
+
 func (c *Client) Dupes(url string) (*[]t.Dupe, error) {
 	body := t.GqlBody{
 		Query: `

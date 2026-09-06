@@ -105,6 +105,13 @@ type UpsertCommentResponse struct {
 	} `json:"data"`
 }
 
+type DeleteItemResponse struct {
+	Errors []GqlError `json:"errors"`
+	Data   struct {
+		DeleteItem Item `json:"deleteItem"`
+	} `json:"data"`
+}
+
 type Dupe struct {
 	Id        int       `json:"id,string"`
 	Url       string    `json:"url"`

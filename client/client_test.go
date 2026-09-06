@@ -83,3 +83,15 @@ func TestMutationPostLink(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestMutationDeleteItem(t *testing.T) {
+	c := newTestClient(t)
+
+	item, err := c.DeleteItem(1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !item.DeletedAt.Valid {
+		t.Fatal("item deletedAt missing")
+	}
+}
