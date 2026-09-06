@@ -49,6 +49,8 @@ type ItemsQuery struct {
 	Cursor string
 	Name   string
 	When   string
+	From   string
+	To     string
 	By     string
 	Limit  int
 }

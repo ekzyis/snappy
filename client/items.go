@@ -73,8 +73,8 @@ func (c *Client) Items(query *t.ItemsQuery) (*t.ItemsCursor, error) {
 
 	body := t.GqlBody{
 		Query: `
-		query items($sub: String, $sort: String, $cursor: String, $type: String, $name: String, $when: String, $by: String, $limit: Limit) {
-			items(sub: $sub, sort: $sort, cursor: $cursor, type: $type, name: $name, when: $when, by: $by, limit: $limit) {
+		query items($sub: String, $sort: String, $cursor: String, $type: String, $name: String, $when: String, $from: String, $to: String, $by: String, $limit: Limit) {
+			items(sub: $sub, sort: $sort, cursor: $cursor, type: $type, name: $name, when: $when, from: $from, to: $to, by: $by, limit: $limit) {
 				cursor
 				items {
 					id
@@ -114,6 +114,8 @@ func (c *Client) Items(query *t.ItemsQuery) (*t.ItemsCursor, error) {
 			"cursor": query.Cursor,
 			"name":   query.Name,
 			"when":   query.When,
+			"from":   query.From,
+			"to":     query.To,
 			"by":     query.By,
 			"limit":  query.Limit,
 		},

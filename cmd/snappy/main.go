@@ -9,7 +9,9 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
+	"time"
 
 	sn "github.com/ekzyis/snappy"
 )
@@ -46,6 +48,10 @@ func queryUsage(fs *flag.FlagSet) func() {
 		fmt.Fprintf(os.Stderr, "      Items to query: all, posts, or comments (default: posts)\n")
 		fmt.Fprintf(os.Stderr, "  -limit int\n")
 		fmt.Fprintf(os.Stderr, "      how many items to fetch (default: 100)\n")
+		fmt.Fprintf(os.Stderr, "  -before string\n")
+		fmt.Fprintf(os.Stderr, "      only items created before this date, YYYY-MM-DD or RFC3339\n")
+		fmt.Fprintf(os.Stderr, "  -after string\n")
+		fmt.Fprintf(os.Stderr, "      only items created on or after this date, YYYY-MM-DD or RFC3339\n")
 	}
 }
 
@@ -59,6 +65,8 @@ func runQuery(args []string) {
 	itemFlag := fs.Int("item", 0, "Stacker News item id")
 	typeFlag := fs.String("type", "posts", "Items to query: all, posts, or comments")
 	limitFlag := fs.Int("limit", 100, "")
+	afterFlag := fs.String("after", "", "only items created on or after this date (YYYY-MM-DD or RFC3339)")
+	beforeFlag := fs.String("before", "", "only items created before this date (YYYY-MM-DD or RFC3339)")
 
 	fs.Parse(args)
 
@@ -67,7 +75,24 @@ func runQuery(args []string) {
 	item := *itemFlag
 	type_ := *typeFlag
 	limit := *limitFlag
+	after := *afterFlag
+	before := *beforeFlag
 	sort := "new"
+	when := "forever"
+	var from, to string
+
+	if after != "" || before != "" {
+		if territory != "" {
+			fmt.Fprint(os.Stderr, "error: -before and -after cannot be used with -territory\n\n")
+			fs.Usage()
+			os.Exit(2)
+		}
+		if author == "" {
+			fmt.Fprint(os.Stderr, "error: -before and -after require -author\n\n")
+			fs.Usage()
+			os.Exit(2)
+		}
+	}
 
 	// TODO: I wanted to refactor this to check exclusive arguments in one place, but Golang does not
 	// have an XOR operator ...
@@ -96,6 +121,27 @@ func runQuery(args []string) {
 		// -territory isn't supported
 		sort = "user"
 	}
+	if before != "" {
+		t, err := parseDate(before)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: -before: %v\n\n", err)
+			fs.Usage()
+			os.Exit(2)
+		}
+		to = strconv.FormatInt(t.UnixMilli(), 10)
+	}
+	if after != "" {
+		t, err := parseDate(after)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: -after: %v\n\n", err)
+			fs.Usage()
+			os.Exit(2)
+		}
+		from = strconv.FormatInt(t.UnixMilli(), 10)
+	}
+	if from != "" || to != "" {
+		when = "custom"
+	}
 	if type_ != "all" && type_ != "posts" && type_ != "comments" {
 		fmt.Fprint(os.Stderr, "error: -type must be all, posts, or comments\n\n")
 		fs.Usage()
@@ -123,7 +169,9 @@ func runQuery(args []string) {
 			Name:   author,
 			Type:   type_,
 			By:     "new",
-			When:   "forever",
+			When:   when,
+			From:   from,
+			To:     to,
 			Cursor: cursor,
 			// fetch max as many items as we still need
 			Limit:  min(limit-count, pageLimit),
@@ -244,6 +292,17 @@ func runDelete(args []string) {
 	}
 
 	fmt.Fprintf(progress, "Deleted item %d.\n", id)
+}
+
+// parseDate accepts a plain YYYY-MM-DD date or a full RFC3339 timestamp.
+func parseDate(s string) (time.Time, error) {
+	if t, err := time.Parse("2006-01-02", s); err == nil {
+		return t, nil
+	}
+	if t, err := time.Parse(time.RFC3339, s); err == nil {
+		return t, nil
+	}
+	return time.Time{}, fmt.Errorf("invalid date %q: use YYYY-MM-DD or RFC3339", s)
 }
 
 // truncate shortens s to at most max runes, noting how many were cut off.
