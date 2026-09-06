@@ -28,11 +28,7 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "  %s query -territory <territory>  Query all items of a territory.\n", filepath.Base(os.Args[0]))
 	fmt.Fprintf(os.Stderr, "  %s query -item <id>              Query a single item by id.\n", filepath.Base(os.Args[0]))
 	fmt.Fprintf(os.Stderr, "  %s delete -item <id>             Delete a single item by id.\n\n", filepath.Base(os.Args[0]))
-	fmt.Fprintf(os.Stderr, "Options:\n")
-	fmt.Fprintf(os.Stderr, "  -type string\n")
-	fmt.Fprintf(os.Stderr, "      Items to query: all, posts, or comments (default: posts)\n")
-	fmt.Fprintf(os.Stderr, "  -limit int\n")
-	fmt.Fprintf(os.Stderr, "      how many items to fetch (default: 100)\n")
+	fmt.Fprintf(os.Stderr, "Run '%s <command> -h' for command options.\n", filepath.Base(os.Args[0]))
 }
 
 func queryUsage(fs *flag.FlagSet) func() {

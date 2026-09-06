@@ -36,11 +36,7 @@ Commands:
   snappy query -item <id>              Query a single item by id.
   snappy delete -item <id>             Delete a single item by id.
 
-Options:
-  -type string
-      Items to query: all, posts, or comments (default: posts)
-  -limit int
-      how many items to fetch (default: 100)
+Run 'snappy <command> -h' for command options.
 ```
 
 `SN_API_KEY` or `SN_NSEC` must be set in your environment for authenticated API access.
