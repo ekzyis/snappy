@@ -24,6 +24,7 @@ type Item struct {
 	SubName string `json:"subName"`
 	SubNames []string `json:"subNames"`
 	Sub Sub `json:"sub"`
+	PayIn PayIn `json:"payIn"`
 }
 
 type Sub struct {
@@ -72,7 +73,8 @@ type ItemsResponse struct {
 }
 
 type PayIn struct {
-	Id            int `json:"id"`
+	Id            int    `json:"id"`
+	PayInState    string `json:"payInState"`
 	PayerPrivates struct {
 		PayInFailureReason string `json:"payInFailureReason"`
 		PayInBolt11        struct {

@@ -26,6 +26,9 @@ func TestQueryItem(t *testing.T) {
 	if item.Id == 0 {
 		t.Fatal("item id missing")
 	}
+	if item.PayIn.PayInState == "" {
+		t.Fatal("item payment status missing")
+	}
 }
 
 func TestQueryDupes(t *testing.T) {

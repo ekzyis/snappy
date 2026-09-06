@@ -36,6 +36,9 @@ func (c *Client) Item(id int) (*t.Item, error) {
 					id
 					name
 				}
+				payIn {
+					payInState
+				}
 			}
 		}`,
 		Variables: map[string]interface{}{
@@ -97,6 +100,9 @@ func (c *Client) Items(query *t.ItemsQuery) (*t.ItemsCursor, error) {
 					user {
 						id
 						name
+					}
+					payIn {
+						payInState
 					}
 				},
 			}
@@ -323,6 +329,9 @@ func (c *Client) DeleteItem(id int) (*t.Item, error) {
 				user {
 					id
 					name
+				}
+				payIn {
+					payInState
 				}
 			}
 		}`,

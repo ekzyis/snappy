@@ -19,7 +19,8 @@
         "createdAt": "2024-01-02T03:04:05Z",
         "user": { "id": "1", "name": "stacker" }
       },
-      "user": { "id": "1", "name": "stacker" }
+      "user": { "id": "1", "name": "stacker" },
+      "payIn": { "payInState": "PAID" }
     },
     {
       "id": "2",
@@ -39,7 +40,8 @@
         "createdAt": "2024-01-02T03:04:05Z",
         "user": { "id": "1", "name": "stacker" }
       },
-      "user": { "id": "2", "name": "satoshi" }
+      "user": { "id": "2", "name": "satoshi" },
+      "payIn": { "payInState": "PENDING" }
     }
   ]
 }

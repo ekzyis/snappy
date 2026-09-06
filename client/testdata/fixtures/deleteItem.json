@@ -16,5 +16,6 @@
     "createdAt": "2024-01-02T03:04:05Z",
     "user": { "id": "1", "name": "stacker" }
   },
-  "user": { "id": "1", "name": "stacker" }
+  "user": { "id": "1", "name": "stacker" },
+  "payIn": { "payInState": "PAID" }
 }
