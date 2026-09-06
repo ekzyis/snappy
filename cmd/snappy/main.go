@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	_ "embed"
 	"encoding/json"
 	"flag"
@@ -8,6 +9,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	sn "github.com/ekzyis/snappy"
 )
@@ -22,7 +24,8 @@ func usage() {
 	fmt.Fprintf(os.Stderr, "Commands:\n")
 	fmt.Fprintf(os.Stderr, "  %s query -author <username>      Query all items of a user.\n", filepath.Base(os.Args[0]))
 	fmt.Fprintf(os.Stderr, "  %s query -territory <territory>  Query all items of a territory.\n", filepath.Base(os.Args[0]))
-	fmt.Fprintf(os.Stderr, "  %s query -item <id>              Query a single item by id.\n\n", filepath.Base(os.Args[0]))
+	fmt.Fprintf(os.Stderr, "  %s query -item <id>              Query a single item by id.\n", filepath.Base(os.Args[0]))
+	fmt.Fprintf(os.Stderr, "  %s delete -item <id>             Delete a single item by id.\n\n", filepath.Base(os.Args[0]))
 	fmt.Fprintf(os.Stderr, "Options:\n")
 	fmt.Fprintf(os.Stderr, "  -type string\n")
 	fmt.Fprintf(os.Stderr, "      Items to query: all, posts, or comments (default: posts)\n")
@@ -173,6 +176,97 @@ func runQueryItem(id int) {
 	}
 }
 
+func deleteUsage(fs *flag.FlagSet) func() {
+	return func() {
+		fmt.Fprintf(os.Stderr, "%s\n\n", banner)
+		fmt.Fprintf(os.Stderr, "Delete a single item by id. The item is shown before deletion.\n\n")
+		fmt.Fprintf(os.Stderr, "Usage:\n")
+		fmt.Fprintf(os.Stderr, "  %s delete -item <id> [options]\n\n", filepath.Base(os.Args[0]))
+		fmt.Fprintf(os.Stderr, "Options:\n")
+		fmt.Fprintf(os.Stderr, "  -f\n")
+		fmt.Fprintf(os.Stderr, "      skip the confirmation prompt\n")
+	}
+}
+
+func runDelete(args []string) {
+	fs := flag.NewFlagSet("delete", flag.ExitOnError)
+	fs.SetOutput(os.Stderr)
+	fs.Usage = deleteUsage(fs)
+
+	itemFlag := fs.Int("item", 0, "Stacker News item id")
+	forceFlag := fs.Bool("f", false, "skip the confirmation prompt")
+
+	fs.Parse(args)
+
+	id := *itemFlag
+	if id == 0 {
+		fmt.Fprint(os.Stderr, "error: -item is required\n\n")
+		fs.Usage()
+		os.Exit(2)
+	}
+
+	progress, close := openTTY()
+	defer close()
+
+	client := sn.NewClient()
+
+	if client.ApiKey == "" && client.Nsec == "" {
+		fmt.Fprintln(os.Stderr, "authentication required: did you set SN_NSEC or SN_API_KEY in your environment?")
+		os.Exit(1)
+	}
+
+	me, err := client.Me()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: Me: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("logged in as %s\n", me.Name)
+
+	fmt.Fprintf(progress, "Fetching item %d...\n", id)
+	item, err := client.Item(id)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: Item: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("\n%s / %d sats / %d replies\n", item.User.Name, item.Sats, item.NComments)
+	fmt.Printf("%s\n\n", truncate(item.Text, 280))
+
+	if !*forceFlag && !confirm(fmt.Sprintf("Delete item %d? [y/N] ", id)) {
+		fmt.Fprintln(os.Stderr, "Aborted.")
+		os.Exit(1)
+	}
+
+	fmt.Fprintf(progress, "Deleting item %d...\n", id)
+	if _, err := client.DeleteItem(id); err != nil {
+		fmt.Fprintf(os.Stderr, "error: DeleteItem: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Fprintf(progress, "Deleted item %d.\n", id)
+}
+
+// truncate shortens s to at most max runes, noting how many were cut off.
+func truncate(s string, max int) string {
+	r := []rune(s)
+	if len(r) <= max {
+		return s
+	}
+	return fmt.Sprintf("%s\n[truncated with %d chars left]", string(r[:max]), len(r)-max)
+}
+
+// confirm prompts on stderr and reads a yes/no answer from stdin, defaulting to
+// no on anything other than "y"/"yes".
+func confirm(prompt string) bool {
+	fmt.Fprint(os.Stderr, prompt)
+	line, err := bufio.NewReader(os.Stdin).ReadString('\n')
+	if err != nil {
+		return false
+	}
+	answer := strings.ToLower(strings.TrimSpace(line))
+	return answer == "y" || answer == "yes"
+}
+
 func openTTY() (w io.Writer, close func()) {
 	tty, err := os.OpenFile("/dev/tty", os.O_WRONLY, 0)
 	if err != nil {
@@ -194,6 +288,8 @@ func main() {
 		os.Exit(0)
 	case "query":
 		runQuery(args[1:])
+	case "delete":
+		runDelete(args[1:])
 	default:
 		fmt.Fprintf(os.Stderr, "unknown command: %q\n\n", args[0])
 		usage()

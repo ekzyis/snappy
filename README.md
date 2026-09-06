@@ -34,6 +34,7 @@ Commands:
   snappy query -author <username>      Query all items of a user.
   snappy query -territory <territory>  Query all items of a territory.
   snappy query -item <id>              Query a single item by id.
+  snappy delete -item <id>             Delete a single item by id.
 
 Options:
   -type string
