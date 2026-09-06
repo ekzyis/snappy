@@ -43,7 +43,7 @@ Options:
       how many items to fetch (default: 100)
 ```
 
-`SN_API_KEY` must be set in your environment for authenticated API access.
+`SN_API_KEY` or `SN_NSEC` must be set in your environment for authenticated API access.
 
 ## How to test
 
